@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.23, for Win64 (x86_64)
 --
--- Host: localhost    Database: example
+-- Host: localhost    Database: EXAMPLE
 -- ------------------------------------------------------
 -- Server version	8.0.23
 
@@ -36,7 +36,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'╨Ъ╨╛╤И╨║╨╕╨╜'),(2,'╨Ь╤Л╤И╨║╨╕╨╜'),(3,'╨Ъ╤Г╤А╨╛╤З╨║╨╕╨╜');
+INSERT INTO `users` VALUES (1,'Кошкин'),(2,'Мышкин'),(3,'Курочкин');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -49,4 +49,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-03-31  7:13:44
+-- Dump completed on 2021-03-31 23:24:55
