@@ -1,5 +1,5 @@
 GeekBrains, BigData, Oleg Gladkiy (https://geekbrains.ru/users/3837199)
-Lesson-2, domashnee zadanie 
+Lesson-2, домашнее задание 
 
 my.cnf
 -- Windows-7, path of config file: c:\winsows
@@ -7,7 +7,7 @@ my.cnf
 
 example.sql
 -- info:    Create DB Example with table User
--- command: 
+-- command: ...manual...
 
 
 example_dump.sql
@@ -16,10 +16,6 @@ example_dump.sql
 
 
 sample_createDB.sql
--- info:    Create DB Sample
+-- info:    Create DB Sample and load the dump file back into the server:.
 -- command: mysql < sample_createDB.sql
-
-
-sample_LoadDropDB.cmd
--- info:    ReLoad dump of the "Example" into "Samle" database.
--- command: mysql sample < example_dump.sql
+            mysql sample < example_dump.sql
