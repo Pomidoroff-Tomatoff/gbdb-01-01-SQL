@@ -10,12 +10,12 @@
 
 	USE example;
     
---	Создаё таблицу
+--	Создаём таблицу
 
 	DROP TABLE IF EXISTS users;
 	CREATE TABLE users (
 		id SERIAL PRIMARY KEY,
-		`name` VARCHAR (255) CHARACTER SET utf8 COMMENT 'Name of user'
+		`name` VARCHAR (255) CHARACTER SET UTF8MB4 COMMENT 'Name of user'
 	) COMMENT='User library';
 
 --	Наполяем
