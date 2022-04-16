@@ -1,12 +1,13 @@
 /*	GeekBrains, BigData, MySQL, Lesson-2
 	Oleg Gladkiy (https://geekbrains.ru/users/3837199) 	 */
 
---	Создаём базу с очисткой плацдарма
+-- Задание 2
+-- Создаём базу "example" с очисткой плацдарма
 
 	DROP DATABASE IF EXISTS example;
 	CREATE DATABASE IF NOT EXISTS example;
     
---	Выбираем по умолчанию
+--	Выбираем "example" БД по умолчанию
 
 	USE example;
     
@@ -18,14 +19,12 @@
 		`name` VARCHAR (255) CHARACTER SET UTF8MB4 COMMENT 'Name of user'
 	) COMMENT='User library';
 
---	Наполяем
+--	Наполняем
     
     INSERT INTO users VALUES
 		(default, 'Кошкин'),
-        (default, 'Мышкин'),
-        (default, 'Курочкин');
+		(default, 'Мышкин'),
+		(default, 'Курочкин');
 
 --	Выводим...
-	SELECT * FROM users;
-
-        
+	SELECT * FROM users;      
