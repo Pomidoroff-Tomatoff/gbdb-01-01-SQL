@@ -1,7 +1,7 @@
 -- GeekBrains, BigData, Oleg Gladkiy (https://geekbrains.ru/users/3837199)
 -- Home Work 3.
 
-
+USE vk;
 
 -- ДОМАШНЕЕ ЗАДАНИЕ 
 -- добавление 3-х таблиц...
