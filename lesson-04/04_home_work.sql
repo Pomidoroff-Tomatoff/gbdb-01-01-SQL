@@ -18,7 +18,7 @@ SELECT DISTINCT firstname FROM users ORDER BY firstname;
 --    Предварительно добавить такое поле в таблицу profiles со значением по умолчанию = true (или 1)
 
 ALTER TABLE profiles DROP COLUMN is_active; -- на всякий случай...
-ALTER TABLE profiles ADD COLUMN (is_active BOOLEAN DEFAULT TRUE);
+ALTER TABLE profiles ADD COLUMN (is_active BIT DEFAULT TRUE);
 UPDATE profiles SET is_active = TRUE; -- выполняем на всякий случай...
 UPDATE profiles SET is_active = FALSE
     WHERE timestampdiff(YEAR, birthday, current_date()) < 18 ;
@@ -42,3 +42,11 @@ DELETE FROM messages WHERE created_at > current_timestamp();
 -- 5. Написать название темы курсового проекта (в комментарии)
 --    планирую, что ГОСУСЛУГИ, но ещё думаю -- не знаю как подступиться...
 
+-- ОЦЕНКА ПРЕПОДАВАТЕЛЯ
+-- Кирилл Иванов, преподаватель
+-- 
+-- Правильно, что используете пакетную вставку данных (одним запросом несколько строк).
+-- Выводить уникальные значения полей можно также с помощью группировки данных (GROUP BY) в запросе SELECT.
+-- Поле is_active - логическое, т.е. должно принимать только значения "да", "нет". Поэтому для него в MySQL в качестве типа данных разумнее выбирать BIT.
+--
+-- Отлично
