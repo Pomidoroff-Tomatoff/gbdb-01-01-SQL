@@ -298,20 +298,16 @@ SELECT COUNT(*),
 -- ЗАДАНИЕ-3:
 -- Подсчитайте произведение чисел в столбце таблицы
 
--- 05.B.2. РЕШЕНИЕ-3--1
+-- 05.B.3. РЕШЕНИЕ-3--1
 -- так как логорифм произведения равен сумме логарифмов:
 -- ln(2*3*4*5) = ln(2) + ln(3) + ln(4) + ln(5)
 -- то если применить обратную к натуральному логарифму функцию экспоненты, то мы получим произведение всех 
 -- 2*3*4*5 = exp(ln(2*3*4*5))=exp(ln(2) + ln(3) + ln(4) + ln(5))
 
-CREATE TABLE tbl_temp (id BIGINT);
-INSERT INTO tbl_temp VALUES (1), (2), (3), (4), (5);
-SELECT EXP(SUM(LOG(id))) FROM tbl_temp WHERE id > 0 ;
-
--- или 
-
-USE shop;
-SELECT EXP(SUM(LOG(value))) FROM storehouses_products WHERE value > 0 ;
+SELECT EXP(SUM(LOG(id))) FROM (
+    VALUES ROW (1), ROW (2), ROW(3), ROW(4), ROW(5) 
+    ) temp(id) -- используем конструктор табличных данных
+    WHERE id > 0 ;
 
 
 -- 05 Home Work 
