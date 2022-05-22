@@ -191,6 +191,10 @@ INSERT INTO storehouses_products (storehouse_id, product_id, value) VALUES
  
 SELECT value FROM storehouses_products ORDER BY IF((value > 0), value, 18446744073709551615);
 
+-- или отсортируем по 2-м полям: поле ноль-не-ноль и значение
+
+SELECT value FROM storehouses_products ORDER BY IF((value > 0), 0, 1), value;
+
 
 -- 05.A.4. (по желанию) =================================================================================================+ 
 -- ЗАДАНИЕ:
@@ -221,6 +225,11 @@ SELECT firstname, birthday_EN FROM users
 -- при помощи оператора расширенной выборки похожих элементов RLIKE
 SELECT firstname, birthday_EN FROM users 
  WHERE birthday_EN RLIKE 'may|august';
+ 
+ -- или
+ -- в базе дата задана как datetime, а сравнение полизводим со строкй
+SELECT firstname, birthday FROM users, profiles 
+ WHERE user_id = users.id AND DATE_FORMAT(profiles.birthday, '%M') IN('may', 'august');
 
 
 -- 05.A.5. (по желанию) =================================================================================================+
