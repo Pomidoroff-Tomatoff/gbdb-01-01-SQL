@@ -123,13 +123,14 @@ IDE
     -- только MySQL серверы
     -- нативный (родной, местный) инструмент
         * можно управлять сервером как сервисом (запускать, останавливать)...
-    -- ER Diagrams (ERR Diagram):
+    -- ER Diagrams (ERR Diagram, ER диаграмма, ERR диаграмма):
         Database -> Reverse Engineer (или crtl + R) -> ...указать базу из списка... -> ER диаграмма
+       или
+        https://github.com/kolei/PiRIS/blob/master/articles/5_1_1_1_erd_workbench.md
     -- Safe Updates (rejects UPDATEs and DELETEs with no restrictions)
         * отменить обновление и разрешить удаление без ограничений
           !> снять эту галочку и пере-подключиться!
           !> Workbench Preferences -> SQL Editor: группа "Other", элемент "Safe Updates" = OFF (снять галочку)
-
 
     DBeaver 
         https://progtips.ru/bazy-dannyx/menedzher-baz-dannyh-dbeaver.html#i
@@ -768,26 +769,32 @@ DML (Data Manipulation Language)
                 EN: https://dev.mysql.com/doc/refman/8.0/en/insert.html
                 RU: http://www.mysql.ru/docs/man/INSERT.html)
                 >> добавление данных в существующую таблицу;
-                Пример:
-                    INSERT INTO catalogs VALUES (NULL, 'Процессоры');
-                    INSERT INTO catalogs VALUES (0, 'Системные платы');
-                или
-                    INSERT INTO catalogs VALUES
-                        (DEFAULT, 'Процессоры'),
-                        (DEFAULT, 'Системные платы');
-                Примечание: 
-                    NULL, 0, DEFAULT -- одно и то же для поля с инкрементом
-                Пример: 
-                    вставка без генерации ошибки при дублировании в уникальном поле
-                    (просто не выполниться эта вставка)
-                    INSERT IGNORE INTO catalogs VALUES (NULL, 'Процессоры');
-                Пример:
-                    в случае ошибки в уникальном поле будет выполнена операция UPDATE 
-                    INSERT INTO ...
-                Пример:
-                    вставка только в указанные поля
-                    INSERT INTO table_name (field_2, note) VALUE ('Процессоры', 'описание');
-
+                    Пример: по одной записи
+                        INSERT INTO catalogs VALUES (NULL, 'Процессоры');
+                        INSERT INTO catalogs VALUES (0, 'Системные платы');
+                    Пример: пакетом
+                        INSERT INTO catalogs VALUES
+                            (DEFAULT, 'Процессоры'),
+                            (DEFAULT, 'Системные платы');
+                        Примечание: 
+                            NULL, 0, DEFAULT -- одно и то же для поля с инкрементом
+                >> вставка записей с указанием полей
+                    Пример: вставка только в указанные поля
+                        INSERT INTO table_name (field_2, note) VALUE ('Процессоры', 'описание');
+                >> используя конструктор строк, то есть синтаксис VALUES ROW()
+                    Прим.: исп. конструктор строк
+                        INSERT INTO tbl_name (a,b,c)
+                            VALUES ROW(1,2,3), ROW(4,5,6), ROW(7,8,9);
+                >> INGOR -- используется для игнорирования ошибок ключа (пропускаем)
+                    Пример: игнорирование ошбки ключа
+                        INSERT IGNORE INTO catalogs VALUES (NULL, 'Процессоры');
+                        * вставка без генерации ошибки при дублировании в уникальном поле
+                        * просто не выполниться эта вставка
+                >> не игнорируем ошибки ключа:
+                    INSERT ... UPDATE 
+                        * обновление записи с конфликтом
+                    REPLACE
+                        * предварительное удаление записи с конфликтом
             > SELECT
                 EN: https://dev.mysql.com/doc/refman/8.0/en/select.html
                 RU: http://www.mysql.ru/docs/man/SELECT.html
@@ -803,11 +810,10 @@ DML (Data Manipulation Language)
                     SELECT * FROM users ORDER BY lastname DESC;
                 без повторений 
                     SELECT DISTINCT lastname FROM users ORDER BY lastname;
-            > VALUES 
+            > VALUES ROW(v1-1, v1-2), ROW(v2-1, v2-2);
                 en: https://dev.mysql.com/doc/refman/8.0/en/values.html
-                -- конструктор таблицых значений
-                -- конструкция, кот. возвращает набор из одной или нескольких срок в виде таблицы
-                VALUE ROW(v1-1, v1-2), ROW(v2-1, v2-2);
+                -- конструктор табличных значений
+                -- возвращает набор из одной или нескольких срок в виде таблицы
                 Пример: 
                     VALUES ROW(1), ROW(2);
                     -> column_0
@@ -823,6 +829,7 @@ DML (Data Manipulation Language)
                 Прим.: вывести разницу между суммой первого столбца и средним арифметическим второго
                     SELECT SUM(name_1) - AVG(name_2) FROM (VALUES ROW(1, 10), ROW(2, 20)) X(name_1, name_2) \G;
                     -> -12.0000
+            > VALUES и INSERT
 
             > UPDATE
                 EN: https://dev.mysql.com/doc/refman/8.0/en/update.html
@@ -862,10 +869,17 @@ DML (Data Manipulation Language)
                     SELECT 
                         * 
                     FROM catalog;
-            > INSERT и UPDATE 
-                >> пытаемся добавить запись, а если не получатеся (она уже сеть), то обновяем
+            > INSERT и UPDATE и функция VALUES(col_name)
+                >> пытаемся добавить запись, а если не получатеся (она уже сеть), 
+                   то обновяем!
                     INSERT ... ON DUPLICATE KEY UPDATE Statement
-                Прим.: таблица имеет второй ключ и с ним может быть проблема (такое значение уже есть) -- тогда обновляем
+                >> в операции обновления необходимо запросить данные, которые могли бы быть вставлены, 
+                   если бы не было ошибки ключа. 
+                   Для такого случая используется функция VALUE(), в которой можно сослаться на такое значение
+                   (исп. только в этом случае)
+                   https://dev.mysql.com/doc/refman/8.0/en/miscellaneous-functions.html#function_values
+                   https://dev.mysql.com/doc/refman/8.0/en/miscellaneous-functions.html#function_values
+                Пример: при проблеме с ключём -- тогда обновляем
                     INSERT INTO users (listid,email,age,name) VALUES 
                         (3,'vit9@gmail.com',26,"Витя"),
                         (3,'kat9@gmail.com',32,"Катя"),
@@ -876,6 +890,8 @@ DML (Data Manipulation Language)
                         email=VALUES(email),                -- в том числе и ключевое (на то же значение)...
                         age=VALUES(age),                    -- Но, наверное, можно искючить обновление ключевого поля
                         name=VALUES(name);                  -- в этой конструкции
+                    Примечание! Функция VALUES() не будет поддерживаться в дальнейшем. 
+                                Используйте псевдонимы.
             > REPLACE INTO test VALUES(1,...)
                 >> если запись есть с таким ключём (в нашем сл. -- 1), то вначале удаляет её, 
                    а потом вставляет новую командой INSERT 
@@ -1060,6 +1076,7 @@ DML (Data Manipulation Language)
             
 
     Сортировка и выборка
+        https://www.simplecoding.org/sortirovka-v-mysql-neskolko-redko-ispolzuemyx-vozmozhnostej.html
         -- сортировка:
             ORDER BY поля через запятую [DESC] 
             Прим.:
@@ -1092,6 +1109,9 @@ DML (Data Manipulation Language)
                     SELECT ALL firstname FROM users;
                    или (тоже самое)
                     SELECT firstname FROM users;
+        -- сортировка по указанному списку:
+            > исп. функцию FIELD(), см. описание в разделе строковых функций
+            SELECT * FROM articles ORDER BY FIELD(a_season, "весна","лето","осень","зима")
 
         -- GROUP BY
             ...см. далее...
@@ -1250,7 +1270,7 @@ DML (Data Manipulation Language)
             DATE_FORMAT(date, format) -- тип строковый
                 -- обратная функция STR_TO_DATE()
                 -- преобразует дату в строку в соответствии с форматом
-                -- Спецификаторы формата
+                -- Спецификаторы формата (https://www.w3schools.com/sql/func_mysql_str_to_date.asp)
                     %D -- день в месяце с английским суффиксом (0th, 1st, 2nd, 3rd, …)
                     %w -- день в неделе цифрами, номера соответсвуют списку (0=Sunday..6=Saturday)
                     %d -- день (00..31) в месяце
@@ -1263,8 +1283,11 @@ DML (Data Manipulation Language)
                     %p -- AM или PM
                     %r -- время, 12-часовой формат с AM или PM на конце ('hh:mm:ss AM' или 'hh:mm:ssAM')
                     %T -- время, 24-часовой формат (hh:mm:ss)
+                    %H -- часы (00..23)
                     %k -- часы (00..23)
+                    %h -- часы (00..12)
                     %l -- часы (0..12) -- Внимание: значение 14 (часов) представляются как 2 (часа) -- AM/PM необходимо!!!
+                    %I -- часы (0..12)
                     %i -- минуты (00..59)
                     %S -- секунды (00..59)
                     %s -- секунды (0..59)
@@ -1404,7 +1427,16 @@ DML (Data Manipulation Language)
         Строковые
             https://dev.mysql.com/doc/refman/8.0/en/string-functions.html
             SUBSTRING('строка', 1, 5) -- выборка из строки символов с 1-ого (начало, всегда с 1-цы) по 5-ый
+            SUBSTRING_INDEX(str, delim, count) -- строкового типа, VARCHAR
+                -- возвращает подстроку от начала (+/-) до разделителя (delim) по счёту "count".
+                Пример:
+                    SELECT SUBSTRING_INDEX('www.mysql.com', '.', 2);
+                        -> 'www.mysql'
+                    SELECT SUBSTRING_INDEX('www.mysql.com', '.', -2);
+                        -> 'mysql.com'
+                -- чувствительна к регистру delim
             REPLACE() -- Замена вхождений указанной строки
+
             CONCAT('string-1', 'str-2'), строковое
                 -- объединение (сложение) множества подстрок
                 Пример:
@@ -1417,12 +1449,16 @@ DML (Data Manipulation Language)
                     -> 'string-1.str-2.str-3'
                     SELECT CONCAT_WS(',','First name',NULL,'Last Name');
                     -> 'First name,Last Name'
-            FIELD('зн-0', 'зн-1', 'зн-2', 'зн-3')
+            FIELD(str, 'зн-1', 'зн-2', 'зн-i'...)
                 -- обратная ELT()
-                -- созвращает позицию (индекс) вхождения значения из списка в строке
-                    > если равно, то > 0 (истина);
-                    > не найдено или NULL возвращает 0 (ложь).
-                Пример. Сортировка выборки в порядке IN(...):
+                -- возвращает номер (i -- индекс) аргумента из списка (1, 2, i), 
+                   если он равен str
+                -- возвращает позицию (индекс) вхождения значения из списка в str:
+                    > i, если str == зн-i
+                      где i -- порядковый индекс аргумента в списке после str
+                    > 0, если нет совпадений
+                    > 0, если NULL.
+                Пример. Сортировка выборки в порядке, как задано в IN(...):
                     SELECT id, name FROM users WHERE id IN (2, 3, 1) ORDER BY FIELD(id, 2, 3, 1);
             ELT(N, str1, str2,...)
                 -- обратная FIELD()
@@ -1441,6 +1477,19 @@ DML (Data Manipulation Language)
                         -> 4
                     SELECT INSTR('xbar', 'foobar');
                         -> 0
+            FORMAT(value, D[, locale]) , строковый
+                -- форматирует число 
+                    > по количеству цифр D после запятой (без округления)
+                    > по разделителю разрядов целой части (по параметру locale)
+                Пример:
+                    SELECT FORMAT(12332.123456, 4);
+                    -> '12,332.1235'
+                    SELECT FORMAT(12332.1,4);
+                    -> '12,332.1000'
+                    SELECT FORMAT(12332.2,0);
+                    -> '12,332'
+                    SELECT FORMAT(12332.2,2,'de_DE');
+                    -> '12.332,20'
 
         Преобразования типов
             BINARY -- приведение строки в двоичной формате
