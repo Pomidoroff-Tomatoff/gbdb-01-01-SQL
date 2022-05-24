@@ -20,8 +20,18 @@ SELECT DISTINCT firstname FROM users ORDER BY firstname;
 ALTER TABLE profiles DROP COLUMN is_active; -- на всякий случай...
 ALTER TABLE profiles ADD COLUMN (is_active BIT DEFAULT TRUE);
 UPDATE profiles SET is_active = TRUE; -- выполняем на всякий случай...
+
+/* неправильное решение, то есть ошибка с том, что день рождения наступает сразу в 1 января
 UPDATE profiles SET is_active = FALSE
-    WHERE timestampdiff(YEAR, birthday, current_date()) < 18 ;
+    WHERE TIMESTAMPDIFF(YEAR, birthday, current_date()) < 18 ; */
+
+-- учитываем в том числе и месяц и день рождения (полная дата)
+UPDATE profiles SET is_active = FALSE                        -- совершеннолетие в будующем,
+    WHERE TIMESTAMPADD(YEAR, 18, birthday) > current_date(); -- ещё не наступило! 
+    
+-- или при помощи оператора INTERVAL:
+UPDATE profiles SET is_active = FALSE                        
+    WHERE (birthday INTERVAL 18 YEAR) > current_date()       -- совершеннолетие в будующем
 
 -- проверка
 SELECT users.id, firstname, is_active, (timestampdiff(YEAR, birthday, current_date())) as age 
@@ -37,6 +47,8 @@ SELECT from_user_id, created_at FROM messages WHERE created_at > current_timesta
 
 -- удаляем их:
 DELETE FROM messages WHERE created_at > current_timestamp();
+
+-- ещё более популярным решением является отметка об удалении, а не физическое удаление
 
 
 -- 5. Написать название темы курсового проекта (в комментарии)
