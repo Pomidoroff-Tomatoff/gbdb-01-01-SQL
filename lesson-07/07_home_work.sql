@@ -10,11 +10,17 @@ SELECT * FROM orders;
 
 -- РЕШЕНИЕ
 
--- Вариант-А 
+-- Вариант-А-1 
 -- Вложенный запрос (простое решение задачи)
 SELECT *
   FROM users
  WHERE EXISTS (SELECT * FROM orders WHERE user_id = users.id);
+
+-- Вариант-А-2
+-- вариант преподавателя
+SELECT *
+  FROM users
+ WHERE users.id IN (SELECT DISTINCT user_id FROM orders);
 
 -- Вариант-Б /включая подсчёт этих заказов
 -- многотабличный запрос
@@ -54,6 +60,17 @@ FROM
     products;
 
 -- Вариант-Б: много-табличный запрос 
+-- Таблица products не имеет ограничительной связи по полю catalog_id со справочником
+-- и может содержать значение NULL для этого поля (по умолчанию)!
+-- В таком случае необходимо не только связать таблицы по полю catalog_id, 
+-- но и учесть появление несуществующих групп каталогов таблицы catalogs, 
+-- то есть позволить вывести NULL для поля catalog_id, если эта позиция не найдена...
+-- В ТАКОМ ТИПЕ ЗАПРОСА У МЕНЯ ЭТО НЕ ПОЛУЧИЛОСЬ
+
+-- Добавляем некоррелированыые данные:
+INSERT INTO products(name, price) VALUES ('Maxtor 1G HDD', 1500.00);
+INSERT INTO products(name, price) VALUES ('Samsung SSd 860EVO 500GB', 8400.00);
+-- Результат:
 SELECT 
     p.id, p.name, p.price, c.name
   FROM 
@@ -66,7 +83,7 @@ SELECT
 -- самый эффективный вариант (но проверить пока не удалось)
 SELECT p.id, p.name, p.price, c.name
   FROM products AS p
-  JOIN catalogs AS c
+  LEFT JOIN catalogs AS c
     ON p.catalog_id = c.id ;
 
 
@@ -148,8 +165,8 @@ SELECT id,
        cFR.`name` AS 'Вылет', 
        cto.`name` AS 'Прилёт' 
   FROM flights AS f
-       INNER JOIN cities AS cFR ON cFR.`label` = f.`from` -- он же для Вылета
-       INNER JOIN cities AS cto ON cto.`label` = f.`to`   -- он же для Прилёта
+       LEFT JOIN cities AS cFR ON cFR.`label` = f.`from` -- он же для Вылета
+       LEFT JOIN cities AS cto ON cto.`label` = f.`to`   -- он же для Прилёта
 ORDER BY id;
 
 -- заметаем следы (рыжим хвостом)...
