@@ -74,7 +74,7 @@ INSERT INTO messages VALUES
     (DEFAULT, 99, 87, '1 ыдаоыдвал', DEFAULT, TRUE),
     (DEFAULT, 99, 87, 'sdfjh sdjkhfks dksjdfskfd sdkjfhs', DEFAULT, TRUE);
 
--- Вариант 1.В: Join-запрос
+-- Вариант 1.В: Join-запрос ??? НЕПОНЯТНО КАК РАБОТАЕТ, ТРЕБУЕТСЯ ПЕРЕДЕЛКА ???
 -- Функция max() возвращает всю строку, для которой актуально максимальное значение (в отличии от count(), для которой остальные поля принимают любые значения группировки)
 SELECT max(max_from.COUNT_from) AS max_me, max_from.from_user_id /*, max_from.to_user_id*/, ur.id
   FROM (
