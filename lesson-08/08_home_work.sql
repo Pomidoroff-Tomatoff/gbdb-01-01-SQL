@@ -28,6 +28,22 @@ GROUP BY from_user_id
 ORDER BY max_from DESC 
 LIMIT 1;
 
+-- Вариант-Б-1: Join-соединения
+-- имя получаем за счёт соединения с таблицей users
+SELECT 
+    count(*) AS max_from,
+    from_user_id AS from_id,
+    u_fr.firstname AS from_name,
+    to_user_id AS to_id,
+    u_to.firstname AS to_name
+FROM messages
+JOIN users AS u_fr ON messages.from_user_id = u_fr.id
+JOIN users AS u_to ON messages.to_user_id = u_to.id
+WHERE to_user_id = 1  -- выбранный (отслеживаемый) получатель
+GROUP BY from_user_id
+ORDER BY max_from DESC 
+LIMIT 1;
+
 -- 1. УСЛОЖЕНИЕ ЗАДАНИЯ: 
 -- А теперь вместо заданного одного конкретного получателя мы хотим найти
 -- для всех имеющихся получателей их максимальных отправителей.
@@ -116,12 +132,22 @@ SELECT count(li.id) AS 'total_senders_less_10_year'
    AND me.user_id = pro.user_id  -- связь медиа и профиля
    AND timestampdiff(YEAR, pro.birthday, now()) < 10;
 
--- Решение-2-В: JOIN-запрос
+-- Решение-2-В-1: JOIN-запрос
 -- Главное: ищем общую таблицу для всех, а уже к ней привязывем остальных  
    
 SELECT count(li.id) AS 'total_senders_less_10_year'
   FROM media AS me
   JOIN likes AS li ON li.media_id = me.id
+  JOIN profiles AS pro ON pro.user_id = me.user_id
+ WHERE timestampdiff(YEAR, pro.birthday, now()) < 10
+;
+
+-- Решение-2-В-2: JOIN-запрос
+-- Главное: никакую общую таблицу не ищем, поступаем как с многотабличным запросом...
+
+SELECT count(*) AS 'total_senders_less_10_year'
+  FROM likes AS li
+  JOIN media AS me ON me.id = li.media_id 
   JOIN profiles AS pro ON pro.user_id = me.user_id
  WHERE timestampdiff(YEAR, pro.birthday, now()) < 10
 ;
@@ -134,6 +160,56 @@ SELECT count(li.id) AS 'total_senders_less_10_year'
  
 -- Решение-3-А: вложенные запросы (повтор 6-ого  урока с упрощением)
 
+SELECT COUNT(*) AS cnt,
+      (SELECT gender FROM profiles WHERE user_id = likes.user_id) AS gen
+  FROM likes 
+GROUP BY gen ;
+ORDER BY cnt DESC
+LIMIT 1;
+
+-- Решение-3-Б: многотабличный запрос
+
+SELECT count(li.id) AS cnt, 
+       CASE pro.gender
+        WHEN 'f' THEN 'Женщина'
+        WHEN 'm' THEN 'Мужчина'
+        ELSE 'бот'
+       END AS gen
+  FROM likes AS li, profiles AS pro
+ WHERE li.user_id = pro.user_id
+GROUP BY gen 
+ORDER BY cnt DESC 
+LIMIT 1;
+
+-- Решение-3-В: JOIN-запрос-соединение
+
+SELECT count(li.id) AS cnt,
+       CASE pro.gender
+        WHEN 'f' THEN 'Женщина'
+        WHEN 'm' THEN 'Мужчина'
+        ELSE 'бот'
+       END AS gen
+  FROM likes AS li
+  JOIN profiles AS pro ON pro.user_id = li.user_id 
+GROUP BY gen 
+ORDER BY cnt DESC 
+LIMIT 1;
+
+-- =====================================================================
+-- ...этого пункта в задании не было, но он был выполнен в начале по ошибке...
+-- 4. Определить, КОМУ больше поставил лайков (всего): мужчинам или женщинам.
+-- Решение-4-А: вложенные запросы (повтор 6-ого  урока с упрощением)
+
+-- Что мы имеем?
+-- 0. сравнение (? мужчин-лайков > женщин-лайков ?)
+    SELECT 'm-likes' > 'f-likes';
+-- 1. лайки, вместе с медиа-айди
+    SELECT id, media_id FROM likes;
+-- 2. пользователь по медиа-айди
+    SELECT user_id FROM media WHERE id = 1;
+-- 3. пол пользователя из профилей
+    SELECT gender FROM profiles WHERE user_id = 1;
+
 SELECT count(*) AS cnt,
       (SELECT gender FROM profiles WHERE user_id = 
              (SELECT user_id FROM media WHERE id = likes.media_id)
@@ -143,7 +219,7 @@ GROUP BY gen
 ORDER BY cnt DESC 
 LIMIT 1;
 
--- Решение-3-Б: многотабличный запрос
+-- Решение-4-Б: многотабличный запрос
 
 SELECT count(li.id) AS cnt, 
        CASE pro.gender
@@ -158,7 +234,7 @@ GROUP BY gen
 ORDER BY cnt DESC 
 LIMIT 1;
 
--- Решение-3-В: JOIN-запрос-соединение
+-- Решение-4-В: JOIN-запрос-соединение
 
 SELECT count(li.id) AS cnt,
        CASE pro.gender
@@ -172,6 +248,7 @@ SELECT count(li.id) AS cnt,
 GROUP BY gen 
 ORDER BY cnt DESC 
 LIMIT 1;
+
 
 
 ОЦЕНКА ПРЕПОДАВАТЕЛЯ: ОТЛИЧНО (2022-06-01; 02:08 MSK отправлено и 12:30 проверено)
