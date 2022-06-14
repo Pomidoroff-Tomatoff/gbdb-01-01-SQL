@@ -10,6 +10,33 @@ MySQL (2022.04.08--22.05.04)
     Учебник по SQL: 
         https://learndb.ru/ (другие курсы)
 
+Другие курсы: https://learndb.ru/
+
+СТРУКТУРА КУРСА:
+Вебинар: интерактиное занятие с преподавателем.
+Лекция (видео-урок) можно посмотреть сразу, как он станет доступен -- обычно в тот же день, что и...
+ДЗ: надо сдать в течении 7 дней, но можно отложить ещё на неделю. Для этого нужно указать "сдам позже" (преподаватель ставит "не сдано" и ждёт, когда ученик сделает и сдаст ДЗ)
+     1. ВЕБИНАР Установка и знакомство
+     2.  лекция DDL: Управление БД. Язык запросов SQL.
+     3. ВЕБИНАР DDL: Введение в проектирование БД.
+                     DDL + CREATE, ALTER, DROP
+     4. ВЕБИНАР DML: CRUD-операции (создание, чтение, обновление, удаление).
+     5.  лекция SELECT: Операторы, фильтрация, сортировка и ограничение. Агрегация данных.
+     6. ВЕБИНАР SELECT: --//--
+     7.  лекция SELECT, JOIN: Сложные запросы
+     8. ВЕБИНАР SELECT, JOIN: Сложные запросы (28.05.2022)
+    >>> продвинутый материал <<< на этом курс прервался
+     9.  лекция Транзакции, переменные, представления. (28.05.2022)
+                Администрирование.
+                Хранимые процедуры и функции.
+                Тригеры.
+    10. ВЕБИНАР --//--
+        > ДЗ: предварительная версия курсового
+    11.  лекция Оптимизация запросов.
+                NoSQL.
+    12. ВЕБИНАР Оптимизация запросов.
+    00. !!! КУРСОВАЯ РАБОТА !!!
+
 Преподавательский состав
     Преподаватель вебинаров: Кирилл Иванов
     Лекции (видео-запись): Игорь Симдянов
@@ -118,7 +145,7 @@ DBeaver
         .my.cnf -- начинается с точки, расположен в домашнем каталоге
 
 IDE
-    Workbench 
+    Workbench (MySQL)
     -- входит в поставку MySQL (Oracl)
     -- только MySQL серверы
     -- нативный (родной, местный) инструмент
@@ -128,12 +155,29 @@ IDE
        или
         https://github.com/kolei/PiRIS/blob/master/articles/5_1_1_1_erd_workbench.md
     -- Safe Updates (rejects UPDATEs and DELETEs with no restrictions)
-        * отменить обновление и разрешить удаление без ограничений
-          !> снять эту галочку и пере-подключиться!
-          !> Workbench Preferences -> SQL Editor: группа "Other", элемент "Safe Updates" = OFF (снять галочку)
+        > запрет удалений и обновлений без ограничений!
+        > данный режим предполагает обязательное использование 
+          условия WHERE с первичным ключом или указания оператора LIMIT;
+            Пример, как надо: 
+                UPDATE goods SET price = price + 10 WHERE product_id > 0;
+                UPDATE goods SET price = price + 10 LIMIT 100;
+        > используется для защиты от удаления всей таблицы
+            >> забывают написать условие WHERE
+            >> забывают написать ограничение LIMIT
+        > Ошибка 1175 (MySQL Workbench Error Code: 1175) -- защита нарушения этого режима.
+        > Отключение этого режима (обновления): 
+            >> SET SQL_SAFE_UPDATES = 0; -- откл. на время сеанса
+            >> MySQL Workbench «Edit -> Preferences -> SQL Editor: группа "Other", элемент "Safe Updates" = OFF (снять галочку)
+               и переподключиться к базе (перезагрузить Workbench)
+    -- Ограничение вывода на экран (вдимо, количества запросов за сеанс)
+        > 50 чего-то по умолчанию...
+            SQL Editor -> Query Editor: Prodactivity, Max number of result sets: 50
+          ножно поменять на 101...
+
 
     DBeaver 
         https://progtips.ru/bazy-dannyx/menedzher-baz-dannyh-dbeaver.html#i
+        https://cloudbeaver.io/ -- облако для работы с базами данных в HTML
     -- сайт: dbeaver.io
     -- поддерживает серверы: MySQL, PostegSQL,...
     -- бесплатный (Community Edition)
@@ -197,7 +241,13 @@ IDE
         в правом окне получем строку со вкладками "Properties" и "ER Diagram".
     
     -- Update ERROR:
-        не даёт обновлять записи, пока что-то не разрешишь это в 2-х разеных окошках...        
+        не даёт обновлять записи, пока что-то не разрешишь это в 2-х разных окошках...        
+
+    -- Mock Data Generator
+        https://github.com/dbeaver/dbeaver/wiki/Mock-Data-Generation-in-DBeaver
+        > инструмент для заполнения таблиц формальными (экспериментальными) данным как плагин для DBeaver
+        > быстро и удобно
+        > полный функционал (геренация элемтнонной почты и так далее) только для платных версий DBeaver (Enterprise and Ultimate editions only).
 
     DbForge (аналог DBeaver)
         https://www.devart.com/dbforge/mysql/studio/
@@ -223,31 +273,6 @@ IDE
     5 НФ: ...
     6 НФ: ...
 
-
-СТРУКТУРА КУРСА:
-Вебинар: интерактиное занятие с преподавателем.
-Лекция (видео-урок) можно посмотреть сразу, как он станет доступен -- обычно в тот же день, что и...
-ДЗ: надо сдать в течении 7 дней, но можно отложить ещё на неделю. Для этого нужно указать "сдам позже" (преподаватель ставит "не сдано" и ждёт, когда ученик сделает и сдаст ДЗ)
-     1. ВЕБИНАР Установка и знакомство
-     2.  лекция DDL: Управление БД. Язык запросов SQL.
-     3. ВЕБИНАР DDL: Введение в проектирование БД.
-                     DDL + CREATE, ALTER, DROP
-     4. ВЕБИНАР DML: CRUD-операции (создание, чтение, обновление, удаление).
-     5.  лекция SELECT: Операторы, фильтрация, сортировка и ограничение. Агрегация данных.
-     6. ВЕБИНАР SELECT: --//--
-     7.  лекция SELECT, JOIN: Сложные запросы
-     8. ВЕБИНАР SELECT, JOIN: Сложные запросы
-    >>> продвинутый материал
-     9.  лекция Транзакции, переменные, представления.
-                Администрирование.
-                Хранимые процедуры и функции.
-                Тригеры.
-    10. ВЕБИНАР --//--
-    11.  лекция Оптимизация запросов.
-                NoSQL.
-    12. ВЕБИНАР Оптимизация запросов.
-
-    00. !!! КУРСОВАЯ РАБОТА !!!
 
 БАЗЫ ДАННЫХ
     Типы
@@ -461,9 +486,9 @@ IDE
         SELECT User, Host FROM mysql.User;
             -- вывести поля User и Host из таблицы User базы mysql
         CREATE TABLE t_name (
-            описание полей
-            ...
-        );
+            filed_name1 datatype_arguments,
+            filed_name2 datatype_arguments 
+            );
             -- создание таблицы "t_name" со списком полей
             -- возможна ошибка, если таблица существует
         CREATE TABLE IF NOT EXIST t_name (k INT);
@@ -556,7 +581,7 @@ IDE
                     >> даты в диапазоне 1970--2038;
                 Пример:
                     SELECT '2022-04-15 18:45:05'
-                Примеры сложения и вычитания:
+                Примеры сложения и вычитания дат и времени:
                     SELECT '2022-04-15 18:45:05' - INTERVAL 1 DAY;
                     SELECT '2022-04-15 18:45:05' + INTERVAL 1 WEEK;
                     SELECT '2022-04-15 18:45:05' + INTERVAL 1 YEAR;
@@ -576,7 +601,7 @@ IDE
                     Пример:
                         ALTER TABLE tbl ADD collection_json JSON;
                         DESCRIBE tbl;
-                        INSERT INTO tbl VALUE (1, '{"first": "Hellow", "second": "TelePusik"}');
+                        INSERT INTO tbl VALUES (1, '{"first": "Hellow", "second": "TelePusik"}');
                         SELECT * FRON tbl;
                         SELECT collection_json->>"$.first" FROM tbl;
                         SELECT collection_json->>"$.second" FROM tbl;
@@ -606,6 +631,7 @@ DDL (Data Definition Language)
                 first_name VARCHAR(255),
                 birthday DATE
             );
+        С обновляемым полем дата-время!
             CREATE TABLE table_name (
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -617,7 +643,8 @@ DDL (Data Definition Language)
             -- существует только в пределах текущего сеанса и автоматически удаляется при завершении сеанса
             -- одновременно в разных сеансах можно создать временную таблицу с одним и тем же именем безконфликтно!
             -- удаление базы данных не приводит к удалению временной таблицы.
-            -- ВНИМАНИЕ! Не будет поддерживаться в дальнейшем, начиная с MySQL 8.0.13
+            -- Временные таблицы хранятья в файле ibtmp1
+            -- ВНИМАНИЕ! Не будет поддерживаться в дальнейшем, начиная с MySQL 8.0.13... но в 8.0.23 поддерживается...
 
         Вычисляемое поле -- "AS"
             CREATE TABLE table_name (
@@ -710,11 +737,17 @@ DDL (Data Definition Language)
                     );                              /* для name только первые 10 символов */
                 или
                     SERIAL = BIGINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE
-                    -- это стандартная предпочтительная форма
+                    -- это стандартная предпочтительная форма, 
+                       но в соединении с Primary key мы получаем два ключа вместе UNIQUE,
+                       это затрудняет обработку или может быть недопустимо с таблицами типа Archive (ENGINE=Archive)
                     CREATE TABLE catalogs (
                         id SERIAL PRIMARY KEY,
                         name VARCHAR(255)
-                    )
+                    );
+                    CREATE TABLE catalogs (
+                        id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                        name VARCHAR(255),
+                    ) ENGINE = Archive;
                 UNIQUE -- создаёт отдельный индекс
                 PRIMARY KEY -- создаёт отдельный индекс
                 >> случше их вместе не сочетать, а то получиться сразу два индекса
@@ -782,7 +815,7 @@ DML (Data Manipulation Language)
                     Пример: вставка только в указанные поля
                         INSERT INTO table_name (field_2, note) VALUE ('Процессоры', 'описание');
                 >> используя конструктор строк, то есть синтаксис VALUES ROW()
-                    Прим.: исп. конструктор строк
+                    Прим.: исп. конструктор строк ROW()
                         INSERT INTO tbl_name (a,b,c)
                             VALUES ROW(1,2,3), ROW(4,5,6), ROW(7,8,9);
                 >> INGOR -- используется для игнорирования ошибок ключа (пропускаем)
@@ -800,36 +833,39 @@ DML (Data Manipulation Language)
                 RU: http://www.mysql.ru/docs/man/SELECT.html
                     http://www.mysql.ru/docs/man/Selecting_rows.html
                 >> извлечение столбцов
-                Прим.:
-                    SELECT name, id FROM catalogs;
-                или все столбцы без их указания
-                    SELECT * FROM catalogs;
-                и сортировка
-                    SELECT * FROM users ORDER BY lastname;
-                в обратном порядке
-                    SELECT * FROM users ORDER BY lastname DESC;
-                без повторений 
-                    SELECT DISTINCT lastname FROM users ORDER BY lastname;
-            > VALUES ROW(v1-1, v1-2), ROW(v2-1, v2-2);
-                en: https://dev.mysql.com/doc/refman/8.0/en/values.html
-                -- конструктор табличных значений
-                -- возвращает набор из одной или нескольких срок в виде таблицы
-                Пример: 
-                    VALUES ROW(1), ROW(2);
-                    -> column_0
-                    -> 1
-                    -> 2
-                    -- возвращено две строки 1-ого столбца с именем column_0
-            > VALUES и SELECT
-                SELECT name_1, name_2 FROM (VALUES ROW(v1-1, v1-2), ROW(v2-1, v2-2) X(name_1, name_2));
-                -- возвращаемые конструктором таблицных значений данные можно именовать и использовать в SELECT
-                -- сдесь 'X' -- любое строкое имя несуществующей таблицы, используемое (наверно) как разделитель
-                   для задания имён столбцов (name_1 и name_2),
-                   которые далее используются для вывода (или вычислений) в операторе SELECT
-                Прим.: вывести разницу между суммой первого столбца и средним арифметическим второго
-                    SELECT SUM(name_1) - AVG(name_2) FROM (VALUES ROW(1, 10), ROW(2, 20)) X(name_1, name_2) \G;
-                    -> -12.0000
+                    Прим.:
+                        SELECT name, id FROM catalogs;
+                    или все столбцы без их указания
+                        SELECT * FROM catalogs;
+                    и сортировка
+                        SELECT * FROM users ORDER BY lastname;
+                    в обратном порядке
+                        SELECT * FROM users ORDER BY lastname DESC;
+                    без повторений 
+                        SELECT DISTINCT lastname FROM users ORDER BY lastname;
+                >> VALUES ROW(v1-1, v1-2), ROW(v2-1, v2-2);
+                    en: https://dev.mysql.com/doc/refman/8.0/en/values.html
+                    -- конструктор табличных значений
+                    -- возвращает набор из одной или нескольких срок в виде таблицы
+                    Пример: 
+                        VALUES ROW(1), ROW(2);
+                        -> column_0
+                        -> 1
+                        -> 2
+                        -- возвращено две строки 1-ого столбца с именем column_0
+                >> VALUES и SELECT
+                    SELECT name_1, name_2 FROM (VALUES ROW('v1-1', 'v1-2'), ROW('v2-1', 'v2-2')) AS x(name_1, name_2);
+                или 
+                    SELECT * FROM (VALUES ROW('v1-1', 'v1-2'), ROW('v2-1', 'v2-2')) AS x;
+                    -- возвращаемые конструктором таблицных значений данные можно именовать и использовать в SELECT
+                    -- обязательный псевдоним таблицы 'x' , используемый для задания имён столбцов
+                    для задания имён столбцов (name_1 и name_2),
+                    которые далее используются для вывода (или вычислений) в операторе SELECT
+                    Прим.: вывести разницу между суммой первого столбца и средним арифметическим второго
+                        SELECT SUM(name_1) - AVG(name_2) FROM (VALUES ROW(1, 10), ROW(2, 20)) X(name_1, name_2) \G;
+                        -> -12.0000
             > VALUES и INSERT
+                -- см. Insert и Update
 
             > UPDATE
                 EN: https://dev.mysql.com/doc/refman/8.0/en/update.html
@@ -864,11 +900,14 @@ DML (Data Manipulation Language)
                         TRANCATE catalogs;
             > INSERT и SELECT
                 >> извлечение с одновременным добавление в другую таблицу
-                    INSERT INTO 
-                        catalog_1 
-                    SELECT 
-                        * 
-                    FROM catalog;
+                    INSERT INTO catalog_1 
+                        SELECT * FROM catalog;
+                >> для более сложных конструкций лучше использовать вариант с подзапросом и псевдонимом
+                    INSERT INTO sample.users (id, name) 
+                        SELECT * FROM (SELECT id, name FROM example.users WHERE id = 1) AS new_values;
+                    ВНИМАНИЕ! 
+                        Далее можно продолжить этот запрос используя ON DUPLICATE KEY UPDATE
+                        используя псевдоним для присвоения новых значений...
             > INSERT и UPDATE и функция VALUES(col_name)
                 >> пытаемся добавить запись, а если не получатеся (она уже сеть), 
                    то обновяем!
@@ -890,13 +929,41 @@ DML (Data Manipulation Language)
                         email=VALUES(email),                -- в том числе и ключевое (на то же значение)...
                         age=VALUES(age),                    -- Но, наверное, можно искючить обновление ключевого поля
                         name=VALUES(name);                  -- в этой конструкции
-                    Примечание! Функция VALUES() не будет поддерживаться в дальнейшем. 
-                                Используйте псевдонимы.
-            > REPLACE INTO test VALUES(1,...)
-                >> если запись есть с таким ключём (в нашем сл. -- 1), то вначале удаляет её, 
+                    ВНИМАНИЕ! Функция VALUES() не будет поддерживаться в дальнейшем. 
+                              Используйте псевдонимы.
+                Пример с псевдонимом строки (вместо функции values(), см. прим. выше): 
+                    INSERT INTO users (listid,email,age,name) VALUES (1, 123@mail.ru, 18, Ivan) AS new(a, b, c, d)
+                    ON DUPLICATE KEY UPDATE 
+                        listid = new.a,
+                        email = new.b,
+                        age = new.c,
+                        name = new.d;
+
+            > INSERT и SELECT и UPDATE
+                Пример (с псевдонимом):
+                    INSERT INTO sample.users (id, `name`, birthday_at, created_at, updated_at)
+                        SELECT * FROM ( 
+                            SELECT id, `name`, birthday_at, created_at, updated_at FROM shop.users WHERE id = 1
+                            ) AS shop_new
+                    ON DUPLICATE KEY UPDATE 
+                        id          = shop_new.id, --  на случай всё же удаления (тогда id надо восстановить)
+                        `name`      = shop_new.`name`,
+                        birthday_at = shop_new.birthday_at,
+                        created_at  = shop_new.created_at,
+                        updated_at  = shop_new.updated_at ;
+
+            > REPLACE INTO test VALUES(1,...) as NEW
+                >> если запись есть с таким ключём (в нашем сл. -- 1), 
+                   то вначале удаляет её (на практике не подтверждается),
                    а потом вставляет новую командой INSERT 
+                   Прим.: работает как обновление в случае нарушения ключа (подтверждено опытом)
                 >> если записи нет с таким ключём, то сразу вставляет новую, 
                    то есть работает как INSERT
+
+            DROP TABLE
+                -- удаление таблицы
+                    Прим.
+                        DROP TABLE IF EXISTS tbl;
 
 Генерация данных
     -- Сервисы для генерации данных:
@@ -912,7 +979,12 @@ DML (Data Manipulation Language)
 
     ALTER TABLE profiles ADD COLUMN birthday DATETIME;
         -- добавить колонку
-
+        Пример (сразу несколько колонок, проверено):
+            ALTER TABLE tb1
+                ADD COLUMN `birthday_at` date DEFAULT NULL COMMENT 'Дата рождения',
+                ADD COLUMN `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+                ADD COLUMN `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            ;
     ALTER TABLE profiles RENAME COLUMN birthday TO date_of_birth;
         -- переименовать колонку
 
@@ -922,7 +994,20 @@ DML (Data Manipulation Language)
     ALTER TABLE profiles MODIFY field_name CHAR(50);
     ALTER TABLE messages MODIFY from_user_id BIGINT UNSIGNED NOT NULL;
         -- изменяем тип поля
-
+            Пример (несколько колонок за раз): 
+                ALTER TABLE messages 
+                    MODIFY from_user_id BIGINT UNSIGNED NOT NULL,
+                    MODIFY col1 VARCHAR(255),
+                    MODIFY col2 INT DEFAULT 0;
+        -- Может привести к потере данных (усечение строки и т. п.)
+            > для предотвращения потери можно ключить строгий режим SQL
+              https://dev.mysql.com/doc/refman/8.0/en/sql-mode.html
+              SET GLOBAL sql_mode = 'режимы';
+              SET SESSION sql_mode = 'режимы';
+                >> сложно, не разобрался...
+            > не рекомендуется менять режим после создания секционированных (partition) таблиц
+              https://dev.mysql.com/doc/refman/8.0/en/partitioning-limitations.html
+           
     ALTER TABLE friend_requests ADD CHECK (id_1 <> id_2);
         -- добавляем проверку: поля id_1 и id_2 не могут быть равны
 
@@ -969,6 +1054,28 @@ DML (Data Manipulation Language)
                 SELECT MOD(5, 2) ;
         DIV -- целочисленное деление
                 SELECT 5 DIV 2 ;
+        INTERVAL -- команда 
+            -- позволяет прибавлять (вычитать) интервал из даты в указанных единицах
+            -- список единиц измерения:
+                SECOND	секунды
+                MINUTE	минуты
+                HOUR	часы
+                DAY	дни
+                MONTH	месяцы
+                YEAR	года
+                MINUTE_SECOND	"минуты:секунды"
+                HOUR_MINUTE	"часы:минуты"
+                DAY_HOUR	"дни часы"
+                YEAR_MONTH	"года-месяцы"
+                HOUR_SECOND	"часы:минуты:секунды"
+                DAY_MINUTE	"дни часы:минуты"
+                DAY_SECOND	"дни часы:минуты:секунды"            
+            Пример:
+                SELECT '2022-03-16' - INTERVAL 1 YEAR;  -- вычесть 1 год..ы
+                -> '2021-03-16'
+                SELECT '2022-04-15 18:45:05' + INTERVAL 1 YEAR;
+                SELECT '2022-04-15 18:45:05' + INTERVAL '1-1' YEAR_MONTH; -- кавычки объязательно!!!
+                SELECT '2022-04-15 18:45:05' + INTERVAL '1+1' YEAR_MONTH + INTERVAL 5 DAY;
         Внимание: 
             все операции с NULL результатом имеют NULL
 
@@ -997,6 +1104,8 @@ DML (Data Manipulation Language)
         IS -- классическое безопасное сравнение с NULL (только)
             SELECT 1 IS NOT NULL ;
             mysql> 1
+            SELECT 1 IS TRUE, 0 IS FALSE, NULL IS UNKNOWN ;
+            mysql> 1, 1, 1
 
     Логические операторы
         OR
@@ -1007,10 +1116,21 @@ DML (Data Manipulation Language)
     Выборки, ключевые слова
         WHERE: условие для выборки
             SELECT * FROM t WHERE id >= 3 AND id <= 7 ;
-        IN(): в списке
-            SELECT * FROM t WHERE id IN(3, 4, 5, 6, 7) ;
-            SELECT * FROM t WHERE id IN(3, 4, 5, 6, 7, NULL) ; 
-                -- вернёт в том числе и NULL (и все строки будет пропущены, так как NULL не равен NULL)
+        IN(): 
+            -- для WHERE
+            -- в списке
+                Пример:
+                    SELECT * FROM t WHERE id IN(3, 4, 5, 6, 7) ;
+            -- NULL в списке вернёт NULL на все сравнения!
+                Пример:
+                    SELECT * FROM t WHERE id IN(3, 4, 5, 6, 7, NULL) ; 
+                    >> вернёт в том числе и NULL (и все строки будет пропущены, так как NULL не равен NULL)
+            -- ВНИМАНИЕ: отбрасывает повторения!
+                Пример: одно и то же
+                    SELECT * FROM t WHERE id IN(1, 2, 3) ;
+                   и...
+                    SELECT * FROM t WHERE id IN(1, 2, 3, 1, 1, 1) ;
+    
         BETWEEN--AND: в диапазоне:
             SELECT * FROM t WHERE id BETWEEN 3 AND 7 ;
             SELECT * FROM t WHERE id NOT BETWEEN 3 AND 7 ;
@@ -1174,9 +1294,12 @@ DML (Data Manipulation Language)
             DATE(строка) -- дата из строки
                 Прим.: такущая дата как строка (формат не знаем)
                     SELECT DATE(NOW()) ;
-            DAYOFYEAR() -- день в году, то есть номер дня от начала года
 
-            TIME(expr) -- время из строки
+            DAYOFYEAR() -- тип int
+                -- день в году, то есть номер дня от начала года
+
+            TIME(expr) строковый тип
+                -- время из строки
                 -- expr: тип time или тип date (формат) -- см. ниже
                 -- тип: 
                 -- тип возврата зависит от контекста использования:
@@ -1191,6 +1314,25 @@ DML (Data Manipulation Language)
                         SELECT TIME(NOW()+59)) ; -- ОСТОРОЖНО С ВЫЧИСЛЕНИЯМИ
                         -> NULL
 
+            CURDATE(), тип строковый или целый
+                -- возвращает текущий день в формате 
+                   строки 'YYYY-MM-DD' или числа YYYYMMDD,
+                   в зависимости от контекста использования
+                Пример:
+                    SELECT CURDATE();
+                        -> '2008-06-13'
+                    SELECT CURDATE() + 0;
+                        -> 20080613
+
+            CURTIME([fsp]) тип строковый или числовой
+                -- возвращает текущее время в формате 'hh:mm:ss' или hhmmss
+                   в зависимости от контекста
+                Пример:
+                    SELECT CURTIME();
+                    -> '23:50:26'
+                    SELECT CURTIME() + 0;
+                    -> 235026.000000
+
             TIMEDIFF(exp1, exp2) типа time или datetime
                 -- возвращает разницу во времени (exp1 - exp2) 
                 -- возвращает тип time или datetime
@@ -1203,18 +1345,27 @@ DML (Data Manipulation Language)
                     -> 00:01:00
                     ВНИМАНИЕ! Секунды десятичные в таком использовании...
 
+            DATEDIFF(exp1, exp2) 
+                -- разница (exp1 - exp2) в днях 
+                    Пример:
+                        SELECT DATEDIFF('2007-12-31 23:59:59','2007-12-30');
+                        -> 1
+                        SELECT DATEDIFF('2012-05-01', '2010-05-02');
+                        -> 730
+
             TIMESTAMP(expr) -- возврат тип date или datetime
                 -- expt: date или datetime
                 Пример:
                     SELECT TIMESTAMP('2003-12-31');
                     -> '2003-12-31 00:00:00'
+
             TIMESTAMP(expr1, expr2) -- сложение даты и времени
                 -- возврат: тип date или datetime
                 -- складывает: expr1 + expr2 (в таком порядке)
-                Прим.:
+                Пример:
                     SELECT TIMESTAMP('2003-12-31 12:00:00','12:00:00');
                     -> '2004-01-01 00:00:00'
-
+                    
             TIMESTAMPADD(unit, interval, datetime_expr) -- типа date
                 -- приращение даты на целочисленный interval, 
                    в указанных единицах измерения unit
@@ -1239,12 +1390,27 @@ DML (Data Manipulation Language)
                     SELECT TIMESTAMPADD(YEAR, 1, '2022-05-1');
                         -> 2023-05-01
 
+            DATE_SUB(date, INTERVAL expr unit), тип date
+                -- вычитает интервал из даты
+                -- ключевое слово INTERVAL объязательно
+                Пример:
+                    SELECT DATE_SUB('1998-01-02', INTERVAL 31 DAY);
+                    -> '1997-12-02'
+
+            DATE_ADD(date, INTERVAL expr unit),  тип date
+                -- добавляет к дате интервал
+                -- ключевое слово INTERVAL объязательно
+                Пример: 
+                    SELECT DATE_ADD('2018-05-01',INTERVAL 1 DAY);
+                    -> '2018-05-02'
+
             ADDDATE(expr, days)
                 -- добавляет дни к дате
                 -- синоним DATE_ADD()
                 Прим.:
                     SELECT ADDDATE('2008-01-02', 31);
                         -> '2008-02-02'
+
             ADDDATE(date, INTERVAL expr unit)
                 -- добавляет дни к дате
                 -- unit, "Временные интервалы", см. выше или (https://dev.mysql.com/doc/refman/8.0/en/expressions.html#temporal-intervals)
@@ -1264,9 +1430,12 @@ DML (Data Manipulation Language)
             Прим.:            
                 TIMESTAMPDIFF(YEAR, birthday_at, NOW())
                     > разница в YEAR (годах, то есть)
-
-            TIME_FORMAT()
-
+            TIME_FORMAT(time, format), строковый тип
+                -- возвращает строку времени в соотв. с форматом
+                -- спецификаторы формата см. ниже DATE_FORMAT() функции
+                Пример:
+                    SELECT TIME_FORMAT('100:00:00', '%H %k %h %I %l');
+                    -> '100 100 04 04 4'
             DATE_FORMAT(date, format) -- тип строковый
                 -- обратная функция STR_TO_DATE()
                 -- преобразует дату в строку в соответствии с форматом
@@ -1313,6 +1482,13 @@ DML (Data Manipulation Language)
                 -- может зависить от часового пояса, см. док...
             FROM_UNIXTIME() -- возврат секунд с 1.1.1970 в нормальное представление
 
+            MICROSECOND(expr), целого типа в диапазоне от 0 до 0999999
+                -- возвращает микросекунды
+                Пример:
+                    SELECT MICROSECOND('12:00:00.123456);
+                    -> 123456
+                    SELECT MICROSECOND('2019-12-31 23:59:59.000010');
+                    -> 10
             SECOND() -- Return the second (0-59)
             MINUTE() -- минуты
             HOUR(строка) -- час из строки
@@ -1335,7 +1511,6 @@ DML (Data Manipulation Language)
                 Пример:
                     SELECT DAYNAME(STR_to_DATE('31.01.2005; 7:15:5', '%d.%m.%Y; %l:%i:%S'));
                     -> Monday
-
             MONTH(), INT
                 -- возвращает месяц с даты
             MONTHNAME() -- название месяца, возвращает строковое значение
@@ -1368,8 +1543,18 @@ DML (Data Manipulation Language)
                     SELECT SEC_TO_TIME(2378);
                     -> '00:39:38'
 
-            ??? MAKEDATE() -- Create a date from the year and day of year
-            ??? MAKETIME() -- Create time from hour, minute, second
+            MAKEDATE(year, dayofyear), тип date
+                -- Create a date from the year and day of year
+                Пример:
+                    SELECT MAKEDATE(2022, 32);
+                    -> 2022-02-01
+                    SELECT MAKEDATE(2022, 365);
+                    -> 2022-12-31
+            MAKETIME(hour, minute, second), тип time
+            -- Create time from hour, minute, second
+                Пример:
+                    SELECT MAKETIME(13, 54, 59);
+                    -> 13:54:59
 
         Информационные
             VERSION() -- версия SQL
@@ -1382,13 +1567,23 @@ DML (Data Manipulation Language)
             USER() -- текущий пользователь
             
         Счётчик автоинкремента
-            LAST_INSERT_ID() -- Авто-счётчик, последнее значение счётчика авто-инкремента...
+            LAST_INSERT_ID() 
+            -- последнее значение счётчика авто-инкремента...
+            -- Удобно использовать в транзакции (или в рамках одной сессии)
                 Пример:
                     INSERT INTO catalogs VALUES (NULL, 'Процессоры'); 
                     -- авто-счётчик срабатывает и принимает последнее значение
                     INSERT INTO products (name, description, price, cataloge_id) 
                     VALUES ('Intel Core i3-8100', 'Процессор Intel.', 7890.00, LAST_INSERT_ID()); 
                     -- использование последнего значения для указания последнего нового id из "catalogs".
+            AUTO_INCREMENT 
+            -- Свойство таблицы
+            -- может быть указано после создания таблицы
+                Пример:
+                    ALTER TABLE users AUTO_INCREMENT=21;
+                    CREATE TABLE ...(
+                        ...
+                    )AUTO_INCREMENT=21;
 
         Математические
             RAND() -- случайное...
@@ -1516,7 +1711,9 @@ DML (Data Manipulation Language)
                     SELECT CONVERT('слово' USING ASCII);
                     -> ?????
 
-        Логические
+        Логические, управление потоком
+            https://dev.mysql.com/doc/refman/8.0/en/flow-control-functions.html
+
             IF(условие, значение-истина, значение-ложь)
                 -- функция
                 -- выдаёт тип в соответствии с аргументами
@@ -1531,7 +1728,27 @@ DML (Data Manipulation Language)
                     -- сначала все значения в порядке возрастания,
                        а последним нулевое значение!
 
-            CASE -- целая конструкция
+            CASE 
+                -- целая конструкция
+                -- множественный выбор
+                -- возвращает результат первого успешного сравнения (ИСТИНА)
+                -- Внимание: тип возвращаемого результата агрегированный (см. док.!)
+                -- Примечание: синтаксис отличается от синтаксиса хранимых процедуры
+                Вариант 1: равенство переменной списку значений
+                    CASE value|var
+                        WHEN compare_value_1 THEN result_1
+                        ...
+                        WHEN compare_value_2 THEN result_N
+                        ELSE result_X
+                    END
+                Вариант 2: множество условий
+                    CASE 
+                        WHEN condition_1 THEN result_1
+                        ...
+                        WHEN condition_1 THEN result_N
+                        ELSE result_X
+                    END
+
                 Прим.: изменяем значения при выводе (EN на RU)
                     SELECT
                         CASE
@@ -1540,11 +1757,61 @@ DML (Data Manipulation Language)
                             ELSE 'неизвестный'
                         END AS ru_name
                     FROM users;
+                ...или
+                     SELECT
+                        CASE (firstname)
+                            WHEN 'Ivan' THEN 'Ваня'
+                            WHEN 'Mikl' THEN 'Миша'
+                            ELSE 'неизвестный'
+                        END AS ru_name
+                    FROM users;
 
-        Всмопогательные
+            IFNULL(expr1, expr2)
+                -- возможность исправлять деление на 0.
+                -- возращает:
+                    > если expr1 является NULL, то возвращает expr2
+                    > если expr1 не является NULL, то expr1
+                Пример: 
+                    SELECT IFNULL(1, 10);
+                    -> 1
+                    SELECT IFNULL(NULL, 10);
+                    -> 10
+                    SELECT IFNULL(1/0, 'yes');
+                    -> 'yes'
+
+            NULLIF(expr1, expr2) типа первого аргумента или NULL
+                -- возвращает:
+                    > NULL,  если expr1 = expr2
+                    > expr1, если expr1 <> expr2
+                Пример:
+                    SELECT NULLIF(1,1);
+                    -> NULL
+                    SELECT NULLIF(1,2);
+                    -> 1
+
+            COALESCE(value1, value2, ...); -- агрегированный тип топов аргументов
+                -- возвращает первое значение не NULL из списка аргументов
+                    Пример:
+                        SELECT COALESCE(NULL, 7, NULL, NULL, 1, 2, 3);
+                        mysql> 7
+
+        Прочие функции (всмопогательные функции, Miscellaneous Functions)
+            https://dev.mysql.com/doc/refman/8.0/en/miscellaneous-functions.html#function_values
             INET_ATON('192.168.1.1') -- преобразование адреса в число
             INET_NTOA( 3232235777) -- обратно...
             UUID() -- универсальный глобальный уникальный идентификатор во времени и пространстве
+            VALUES() -- значение по имени поля (колонки)
+                https://dev.mysql.com/doc/refman/8.0/en/miscellaneous-functions.html#function_values
+                -- определение значения, используемых (попытка использования которых была) 
+                   в операторе INSERT
+                -- используется для оперирования значением, 
+                   строку (запись) с которым почему-то не удалось вставить 
+                   при операции INSERT (например, нарушение ограничения ключа)
+                Внимание!
+                    Не работает: SELECT VALUES(id) FROM users WHERE id = 1;
+
+        Агрегатные (групповые) функции
+            см. ниже
 
     Использование операторов: 
         Вычисляемые поля
@@ -1578,10 +1845,11 @@ DML (Data Manipulation Language)
                     SELECT NULL IN(2, 3, 5, NULL);
                     > NULL
             -- возвращает NULL, если
-            SELECT * FROM catalogs WHERE id_catalog IN (1, 2, 5, NULL) ;
-            SELECT * FROM catalogs WHERE id_catalog NOT IN (1, 2, 5, NULL) ;
+                SELECT * FROM catalogs WHERE id_catalog IN (1, 2, 5, NULL) ;
+                SELECT * FROM catalogs WHERE id_catalog NOT IN (1, 2, 5, NULL) ;
+            -- ВНИМАНИЕ! Отбрасывает повторения.
 
-Группы
+ГРУППЫ
     а. GROUP BY ... -- собственно, группировка!
     б. теперь сортировка!
     в. LIMIT -- вообще самое последнее, если есть...
@@ -1597,7 +1865,7 @@ DML (Data Manipulation Language)
         LIMIT 2 ; 
 
     Список значений поля в группе (их список):
-        GROUP_CONCAT() 
+        GROUP_CONCAT()
             -- ф-ция, выводящая все значения в группе в строку
             -- максимум 1000 символов (если не указано в параметрах сервера БД иное)
                 SET SESSION group_concat_max_len = 4; 
@@ -1625,17 +1893,18 @@ DML (Data Manipulation Language)
             FROM 
                 users
             GROUP BY    -- группировка
-                decade   -- по декаде
+                decade  -- по декаде
             ORDER BY
                 decade
             LIMIT 2 ; 
 
     HAVING 
-        -- условия для групп
-        -- можем использовать агрегационные функции (с WHERE это невозможно, так как оно исп. до группы)
+        -- условия для подгруппы
+        -- можем использовать агрегационные функции 
+           (с WHERE это невозможно, так как оно исп. до группы и поэтому не видит результат работы группы)
             Прим.:
                 SELECT 
-                    COUNT(*) AS Total,
+                    COUNT(*) AS total,
                     GROUP_CONCAT(name ORDER BY name DESC SEPARATOR ', '),
                     SUBSTRING(birthday_at, 1, 3) AS decade
                 FROM 
@@ -1648,7 +1917,7 @@ DML (Data Manipulation Language)
                     decade
                 LIMIT 2 ; 
         -- можно и без группы, но использовать псевдонимы (с WHERE это не получиться):
-            Прим.:
+            Пример:
                 SELECT firstname, lastname, DATE_FORMAT(birthday, '%M') AS b_month FROM users, profiles 
                 WHERE users.id=profiles.user_id HAVING b_month IN('may', 'august');
 
@@ -1657,49 +1926,62 @@ DML (Data Manipulation Language)
         -- возвращает полный список всех field_name_grp для всех групп
         -- работает и для поля count(...) -- возвращает общую сумму всех агрегаций
         -- для всех остальных полей возвращается NULL
-        -- сортировка в этом случае не применима.
-
-    ??????????????????????????????????????
-
-    https://learndb.ru/
-    Определение задания значения ???
-        GROUPING(field_name) -- определение NULL
+        -- сортировка в этом случае не применима
+        -- для обработки ситуации с NULL добавлена функция GROUPING(), начиная с MySQL-8.0.1
+    
+    GROUPING() -- ??????????????????????????????????????
+        https://dev.mysql.com/blog-archive/mysql-8-0-grouping-function/
+        -- функция используется для различения значения NULL, представляющего набор всех значений 
+           в суперагрегированной строке (создаваемой операцией ROLLUP), от NULL в обычной строке.
+        -- начиная с MySQL-8.0.1
         -- возвращает 0 (FALS), если значение есть;
         -- возвращает 1 (TRUE), если значение NULL;
         -- может использоваться с функцией IF(...) для изменения значения
 
 
-Агрегация данных при помощи функций (для работы с группами, лекция 05) 
+Агрегация 
+    агрегация данных при помощи функций (для работы с группами, лекция 05) 
     https://dev.mysql.com/doc/refman/8.0/en/aggregate-functions.html
     -- функции задаются только после SELECT
        > использовать в выражении WHERE нельзя!!!
     -- выполняется при помощи агрегатных функций
     -- возвращают значение для группы
        > если группа не задана, то вся таблица принимается как одна группа
-    COUNT(fild_name)
-        -- возвращает количество строк (записей) в группе
-        -- исключает NULL (не считает их)
-        -- если "*", то количество включает поля NULL
-    COUNT(DISTINCT fild_name)
-        -- подсчитываются только уникальные значения поля
     
     MIN(fild_name)
         -- минимальное зн-ие в группе
+        -- фильтр на стоку (запись), 
+           > остальные поля в возвращённой записи будут так же актуальны найденному минимальному значению поля fild_name
     MAX(field_name)
-        -- максимальное...
-
+        -- максимальное значение поля, 
+        -- является фильтром для всей строки, а не только для поля
+            > остальные поля в строке (записи) так же будут актуальны, а не случайны
+              в отличии от функций sum(), count(), avg()... для которых невозможно найти соотвутствующую запись, с соотвествующим значением искомого поля
         Пример: как вывести максимальное значение?
             Это ошибка:
                 SELECT * FROM products WHERE price = MAX(price);
             А это правильно:
                 SELECT * FROM products ORDER BY price DESC LIMIT 1;
 
+    COUNT(fild_name)
+        -- возвращает количество строк (записей) в группе
+        -- не является фильтром записей в выборке, остальные значения полей будут "ненастоящими"
+        -- исключает NULL (не считает их)
+        -- если "*", то количество включает поля NULL
+    COUNT(DISTINCT fild_name)
+        -- подсчитываются только уникальные значения поля
+
     AVG(field_name)
         -- среднее значение в группе
+        -- не является фильтром записей в выборке, а вычислением столбца
+        -- возвращается значение для столбца, а не найденная запись, поэтому остальные поля будут случайными
+           > Так как невозможно найти запись, в которой поле field_name равнялось бы результату работы AVG(field_name)...
+        ВНИМАНИЕ: остальные поля в выборке окажуться случайными (или первой записью)
 
     SUM(field_name)
         -- сумма всех значений столбца
         -- NULL игнорируется
+        ВНИМАНИЕ: остальные поля в выборке окажуться случайными (или первой записью)
 
     ANY_VALUE(field_name)
         -- агрегационная функция-затычка
@@ -1708,9 +1990,646 @@ DML (Data Manipulation Language)
             SELECT ANY_VALUE(name)
 
 
+* * * * * * * * * * * * * * * * * * * * *
+МНОГО-ТАБЛИЧНЫЕ ЗАПРОСЫ / СЛОЖНЫЕ ЗАПРОСЫ
+    Вложенные запросы
+        -- позволяет использовать результат одного запроса в другом,
+           подзапроса в самом запросе
+        -- вложенный запрос становиться таковым после 
+           помещения в круглые скобки
+        -- организация:
+            SELECT 
+                id, 
+                (SubQuery)
+            FROM 
+                (SubQuery) AS pseudo_name  -- здесь псевдоним обязателен!
+            WHERE 
+                (SubQuery)
+            GROUP BY id
+            HAVING 
+                (SubQuery)
+        Пример: найти товар с максимальной ценой (этот запрос не является коррелированным, так как вычисляется один раз)
+            SELECT id, name, catalog_id
+            FROM products
+            WHERE price = (SELECT MAX(price) FROM products);
+        -- коррелированный подзапрос: 
+            > использует столбец (поле) из внешнего запроса
+                Пример: id-поле корреляции
+                    SELECT id, (SELECT ... WHERE ..id=id..) AS name FROM order;
+            > необходимость вычисления для каждой строки (адресация поля и записи)
+            > возвращает одно значение (для одной записи внешнего запроса)
+            Пример:
+                SELECT 
+                    order.id, 
+                   (SELECT 
+                        product.name 
+                    FROM
+                        product 
+                    WHERE
+                        product.id = order.id)
+                FROM order;
+        -- множественный возврат подзапроса -- необходима обработка списка
+            > IN-конструкция: сравнение элементов списка на равенство
+              = (равенство) с логикой ИЛИ (если любой элемент равен, возвращается ИСТИНА на весь список)
+             
+                Пример:
+                    SELECT id, name, catalog_id FROM products 
+                    WHERE catalog_id IN (1, 2);
+                или
+                    SELECT id, name, catalog_id FROM products 
+                     WHERE catalog_id IN (SELECT id FROM catalogs);
+                Внимание!
+                    IN(..) отбрасывает повторы
+
+            > ANY(..) -- универсальный: поддерживает все виды сравнений с логикой ИЛИ для всех элементов списка
+              <, >, =,.. -- с логикой "ИЛИ"
+                Пример: все мат. платы, которые дешевле какой-нибудь позиции из раздела "Процессоры"
+                    SELECT id, name, catalog_id 
+                      FROM products 
+                     WHERE price < ANY (SELECT price FROM products WHERE catalog_id = 1) -- цена процессоров
+                       AND catalog_id = 1 -- это системные платы;
+
+            > SOME(..) -- синоним ANY
+
+            > ALL(..) -- универсальный, с логикой "И" (для всех элементов списка)
+              <, >, =,.. -- с логикой "И"
+                Пример: мат. платы, дороже любого процессора (catalog_id = 1)
+                    SELECT id, name, catalog_id 
+                      FROM products 
+                     WHERE price > ALL (SELECT price FROM products WHERE catalog_id = 1) -- цена процессоров
+                       AND catalog_id = 1 -- это системные платы;
+
+            > EXISTS -- если в возвращаемом запросе хотя бы одна строка?
+                Пример: 
+                -- вывести разделы каталога, для которых есть товар на складе
+                    SELECT * FROM catalogs 
+                     WHERE EXISTS (SELECT * FROM products WHERE catalog_id = catalogs.id);
+                -- вывести разделы каталога, для которых нет ни одной товарной позиции 
+                    SELECT * FROM catalogs 
+                     WHERE NOT EXISTS (SELECT '1' FROM products WHERE catalog_id = catalogs.id); -- выполняется быстрее
+
+    Строчные вложенные запросы
+        -- запросы, возвращающие более одного поля (столбца)
+        -- ROW(field1, f2, ...) -- конструктор строки
+        Пример: (сравнивается что-то с чем-то)
+            SELECT id, name, price, catalog_id 
+            FROM products
+            WHERE ROW(catalog_id, 5060.00) IN (SELECT id, price FROM catalogs);
+    
+    Подзапрос в определении источника (FROM)
+        -- псевдоним на вложенный запрос обязателен!
+            Пример: (здесь можно и обойтись без вложенного запроса...)
+                SELECT *
+                FROM (SELECT * FROM products WHERE catalog_id=1) AS prod;
+        -- вложенный запрос являясь источником передаёт все записи, ключая названия колонок (полей)
+           > если необходимо изменить имя колонки, то необходимо так же использовать псевдоним, 
+             который и будет передан выше.
+            Пример: 
+            а) получить минимальные цены в разделах каталога
+            б) получить среднюю минимальную цену
+                SELECT avg(min_grp_price)
+                  FROM (
+                       SELECT catalog_id, min(price) AS min_grp_price
+                       FROM products p
+                       GROUP BY catalog_id
+                  ) AS prod ;
+            
+    Объединения 
+        Виды:
+        > UNION -- объединение
+        > EXEPTION -- разность (множеств), не поддерживается MySQL
+        > INTERSCT -- пересечение, не поддерживается MySQL
+
+        UNION [DISTINCT|ALL] -- вертикальное объединение
+            -- объединение, вертикальное (операция со множестами)
+            -- изменения:
+                > колонки не добавляются, 
+                > строки прибавляются (вертикальное объединение)
+            -- варианты
+                > DISTINCT (default) -- без повторений (по умолчанию)
+                  >> медленно выполняется, из-за отбрасывания повторений
+                > ALL -- включаем все записи (повторения в том числе)
+            -- UNION, равноправное объединение двух (нескольких запросов) в один
+                > предполагает однотипные данные в объединяемых запросах
+                Пример: 
+                    SELECT name FROM catalog_1
+                      UNION ALL
+                    SELECT name FROM catalog_2
+                      UNION ALL
+                    SELECT name FROM catalog_3 ;
+            -- ORDER BY действует на весь результат, а не на отдельную таблицу, 
+                        за исключением экранирования под-запроса скобоками
+            -- LIMIT n  действует на весь результат, а не на отдельную таблицу, 
+                        за исключением экранироания под-запроса скобоками
+            -- запрос в скобках становиться вложенным
+                Пример экранирования (без отбрасывания дубликатов):
+                    (SELECT name FROM catalog_1 ORDER BY name DESK)
+                    UNION ALL
+                    (SELECT name FROM catalog_2 LIMIT 2);
+            -- медленно работают, так как требуют промежуточной таблицы на диске
+
+    JOIN-соединения
+        -- похожи на UNION-запросы, но Union -- это веритикальное объединение, а Join -- горизонтальное
+        -- позволяют соединять горизонтально (добавлять колонки)
+            > не только однотипные результаты,
+            > соединяют разноплановые таблицы, 
+              задействуя связь "первичный--внешний ключ"
+        -- Виды:
+            [INNERT] JOIN -- пересечение
+            LEFT [OUTER] JOIN  -- все левая таблица и общее пересечение
+            RIGHT [OUTER] JOIN -- объединение общего пересечения и всей правой таблицы
+            *FULL [OUTER] JOIN -- полное объединение, не поддерживается MySQL
+        JOIN (INNER JOIN)
+            ---
+            Пример
+
+        LEFT [OUTER] JOIN
+            ---
+            Пример
+
+Транзакции
+    https://dev.mysql.com/doc/refman/8.0/en/commit.html
+    -- Атомарная (неделимая) группа запросов.
+        > не может быть выполена частично
+    -- Выполняется всё или ничего (по причине сбоя или логики)
+    -- Структура
+        START TRANSACTION; -- начало описания транзакции
+        select 123 + 1;    -- команды транзакции
+        COMMIT;            -- внесение изменений транзакции (фактическое выполнение?)
+    -- Отмена транзакции (откат)
+        ROLLBACK;          -- отмена транзакции
+        ROLLBACK TO SAVEPOINT point_name_1; -- откат до точке сохранения point_name_1
+            SAVEPOINT point_name_1; -- объявление точки сохранения
+            > если новая точка сохранения имеет такое же имя, то старая удаляется и устанавливается новая.
+        > нельзя выполнить откат для:
+            CREATE INDEX
+            DROP INDEX
+            CREATE TABLE
+            DROP TABLE
+            TRANSCATE TABLE
+            ALTER TABLE
+            RENAME TABLE
+            CREATE DATABASE
+            DROP DATABASE
+            ALTER DATABASE
+        > не рекомендуется, в связи с этим помещать эти команды в транзакцию.
+    -- Завершение неявное 
+        > операторы, неявно завершающие транзакцию
+            ALTER TABLE
+            BEGIN
+            CREATE INDEX
+            CREATE TABLE
+            CREATE DATABASE 
+            DROP DATABASE 
+            DROP INDEX
+            DROP TABLE
+            LOAD MASTER DATA
+            LOCK TABLES 
+            RENAME 
+            SET AUTOCOMMIT=1
+            START TRANSACTION 
+            TRUNSCATE TABLE 
+    -- Вложенность: 
+        > транзакция не может быть вложенной;
+        > любой оператор, начинающий транзакцию, приводит к завершению предыдущей.
+    -- Автозавершение
+        > MySQL работает в режиме автозавершения, то есть любая команда рассматривается
+          как транзакция и выполняется немедленно.
+          Режим ключается (по умолчанию):
+            SET AUTOCOMMIT=1;
+        > Отключение автозавершения: для внесения изменений команд необходимо
+          выполнить COOMIT или отменить ROLLBACK
+            SET AUTOCOMMIT=0;
+          восстановление режима автозавершения (занесения)
+            SET AUTOCOMMIT=1;
+    -- Принципы функционирования
+        > требуют много ресурсов
+        > ACID (Atomicy, Consistency, Isolation, Durability) -- уловие выполнения транзакций.
+            >> Атомарность -- неделимая единицах
+            >> Согласованность -- БД переходит из одного непротиворечивого состояния в другое непротиворечивое
+            >> Изолированность -- результаты транзакции не видны (обычно) другим транзакциям
+        > Уровни изоляции:
+            >> READ UNCOMMITDED 
+               * грязное чтение, транзакции могут видеть результаты незафиксированных транзакций
+            >> READ COMMITDED
+               * транзакции увидят только те изменения, которые уже зафиксированы
+               * фантомное (невоспроизводимое) чтение: два одинаковых запроса чтения могут привести к разным результатам
+            >> REPEATABLE READ (по умолчанию, default)
+            >> SERIALIZABLE
+               * решаем проблему фантомного чтения
+               * заставляет выполнять транзакции в таком порядке, чтобы исключить конфликты
+               * блокирует каждую строку, которую транзакция читает
+               * возможно множество задержек и конфлктов блокировки
+            >> Изменение:
+                SET TRANSACTION ISOLATION LEVEL READ COMMITED;
+
+Переменные
+    -- временная структура для сохранения данных
+        > начинается с символа 
+            "@"  -- сеансовая пользовательская и 
+            "@@" -- глобальная системеная, 
+          за которым следует имя переменной.
+        > имя не чувствительно к регистру
+    -- объявление и задание значения переменной пользователя:
+        > оператором "SET":
+            SET @var = 1; -- сеансовая
+        > оператором "SELECT" с выводом этого значения:
+            SELECT @var := count(*) FROM users; -- получили, сохранили и тут же вывели количество строк в таблице "users"
+            SELECT @var := max(price) FROM products; -- получили максимальное значение цены
+            SELECT @var := @var + 1 AS nn, name FROM users; -- вывели список пользователей с собственной нумерацией (без id)
+        > оператором "SELECT" без вывода:
+            SELECT id, name INTO @var_id, @var_name @var_name = name FROM users LIMIT 1;
+           или
+            SELECT 1, 2 INTO @x, @y;
+           или
+            SELECT count(*) INTO @x FROM users;
+
+    -- СИСТЕМНЫЕ переменные
+        > их имена уже заданы (строго)
+        > глобальные (общий размер кэша для сервера, напр.): 
+            >> при запуске сервера получают строго значения по умолчанию
+                >>> но изменения этих переменных могут быть внесены в конфигурационный файл
+                    работающий при для старта
+            >> доступны для всех сессий
+            >> изменение глобальной переменной видимо всем сессиям, до перезагрузки сервера
+            Прим.: изменение глобальной переменной
+                SET GLOBAL read_buffer_size = 2097152;
+               или
+                SET @@global.read_buffer_size = 2097152;
+        > сеансовые: 
+            >> при запуске сервера получают значения от глобальных системных переменных
+        > сеансовые динамические: 
+            >> могут быть изменены пользователем на сеанс
+            Прим.:
+                SET SESSION read_buffer_size = 2097152;
+               или 
+                SET @@session.read_buffer_size = 2097152;
+        > возвращение сеансовой динамической переменной значения от глобальной:
+            SET read_buffer_size = DEFAULT;
+    -- ИНФО, список системных переменных:
+        SHOW VARIABLES;
+        Прим: 
+            SHOW VARIABLES LIKE AS 'read_%';
+
+Временная таблица:
+    -- только на сеанс и изолированно от других сеансов.
+    -- "TEMPORARY" -- ключевое слово для создания такой таблицы
+            CREATE TEMPORARY TABLE table_temp (id int);
+    -- удаление:
+            DESCRIBE table_temp;
+    -- не принадлежат ни к одной из БД
+        > посмотреть можно 
+            SHOW TABLES;
+
+Представление ВРЕМЕННОЕ (Динамические запросы)
+    -- динамический именнованный запрос
+        > только на сеанс
+        > PREPARE -- объявляется ключевым словом 
+        > ЕХЕСUTE -- запускается 
+            Пример:
+                PREPARE ver FROM 'SELECT VERSION()';
+                EXECUTE ver;
+                -> 8.0.23 
+        > USING -- параметризация 
+            >> только для использования с переменной!
+            PREPARE prod 
+                FROM 'SELECT pr.id, pr.name AS p_name 
+                    FROM shop.products AS pr  
+                WHERE pr.id = ?';
+            SET @var_prod_id=1;
+            EXECUTE prod USING @var_prod_id;
+        > DROP PREPARE -- удаление
+         Пример:
+            DROP PREPARE prod;
+
+Представления
+    https://dev.mysql.com/doc/refman/8.0/en/create-view.html 
+    -- рассматривается как полноценная таблица, 
+       посмотреть можно:
+        SHOW TABLES;
+    -- определение:
+        Пример:
+            CREATE OR REPLACE VIEW prod AS 
+                SELECT pro.id, pro.name AS 'Name', cat.name AS 'Type' FROM products AS pro JOIN catalogs AS cat ON pro.catalog_id = cat.id;    
+    -- ограничения:
+        > вертикальные, по количеству выводимых столбцов
+        > горизонтальные по количеству выводимых строк (гориз)
+        > внутренние, указываются командой в конце описания:
+            CREATE OR REPLACE VIEW prod AS 
+                SELECT pro.name AS 'Name' FROM products AS pro WHERE pro.id > 1;
+                WITH CHECK OPTIONS
+    -- INSERT и UPDATE работают с представлением как с обычной таблицей
+            CREATE OR REPLACE VIEW prod AS 
+                SELECT pro.name AS 'Name' FROM products AS pro;
+    -- ALTER VIEW -- редактирование представления:
+        ALTER VIEW prod AS ...;
+    -- DROP VIEW -- удаление
+        DROP VIEW IF EXISTS prod [, v1, v2...];
+
+Процедуры (и функции)
+    https://dev.mysql.com/doc/refman/8.0/en/create-procedure.html
+    -- Создание, команды:
+        CREATE PROCEDURE proc_name ...
+        CREATE FUNCTION func_name ...
+    -- Особенности:
+        > Процедуры вызываются отдельной командой и должны быть вызваны отдельно
+            CALL proc_name;
+        > Функции возвращают значение и могут быть встраиваемы в запросы
+            SELECT func_name(...);
+        > Конфликт разделителя комады создания и тела функции (процедуры): 
+          * команда создания функции должна завершаться разделителем команд (;),
+          * в теле функции так же используются команды и разделитель так же необходим,
+          * использование одного разделителя в команде создания и теле функции (пр.) приведёт к ошибке,
+            когда команда создания оборвётся раньше, остановившись на разделителе в теле процедуры.
+          ВНИМАНИЕ
+            Для решения конфликта разделителей команд создания и тела процедур и ф. используется явная замена 
+            разделителя для команды создания процедуры. Для этого используется ключевое слово "DELIMITER" (см. ниже)
+            Пример:
+                DELIMITER //
+                CREATE PROCEDURE proc_name()
+                    SELECT version(); -- на этот разделитель при выполнении команды создания процедуры MySQL не среагирует
+                BEGIN
+                END // -- нестандартный разделитель, (зарвешение команды создания)
+                DELIMITER ; -- возвращаемся к умолчанию
+
+    -- Процедура
+        > тело процедуры ограничивается BEGIN ... END
+            Пример:
+                CREATE procedure my_proc()
+                ... здесь задаётся переменная с глобальной в процедуре видимостью ???
+                BEGIN
+                    ... переменная среднего уровня
+                    BEGIN
+                        ... самая "невидимая" переменная
+                        SELECT version();
+                    END;
+                END $$  -- где "$$" замена кавычек
+    -- Функция
+        > для функции необходим возврат (RETURN)
+            Пример:
+                CREATE FUNCTION my_f()
+                RETURNS TEXT DETERMINISTIC
+                BEGIN
+                    RETURN VERSION();
+                END $$  -- где "$$" замена разделителя команд ";"
+        > тип возврата
+            >> DETERMINISTIC -- всегда одно значение, MySQL server может его кешировать в рамках запроса
+            >> NOT DETERMINISTIC -- возврат различен от вызова к вызову, кэшировать нелья
+
+    -- Направление изменения аргументов, тип изменения аргументов (взаимодействие изменений)
+        > видимость аргумента указывается перед его описанием
+            CREATE PROCEDURE my_proc (IN value INT)... -- тип видимости аргумента "IN"
+        > типы взаимодействия аргумента:
+            >> IN
+                CREATE FUNCTION my_func (IN var INT)... 
+                -> передача данных только внуть функции, изменения наружу невидимы
+                -> умолчание и единственный возможный вариант для функций 
+            >> OUT
+                CREATE PROCEDURE my_proc (OUT proc_var INT)...
+                -> инициализация: proc_var присваивается NULL
+                   Прим.: передать значение внутрь не получиться!
+                -> во внимание принимается только исходящее значение процедуры,
+                -> входящее значение игнорируется (видимо, воспринимается как NULL)
+                Пример:
+                    DELIMITER //
+                    CREATE PROCEDURE my_proc (OUT var1 INT, OUT var2 INT)
+                    BEGIN
+                        SET var1 := var1 + 1; -- Результат: NULL + 1 => NULL, возвращаем NULL
+                        SET var2 := 200;      -- Результат: => 200, возвращаем 200
+                    END //
+                    SET @my_x = 100 //
+                    SET @my_y = 5 //
+                    CALL my_proc (@my_x, @my_y) //
+                    SELECT @my_x, @my_y //
+            >> INOUT
+                CREATE PROCEDURE (INOUT proc_var INT)...
+                -> принимается во внимание как входящее, так и исходящее значения
+    -- Переменные внутренние, заданные (только) внутри процедуры (функции)
+        DECLARE id, num INT DEFAULT 0; -- задание двух переменных одного типа и инициализация
+        Прим.:
+            CREATE PROCEDURE my_proc (OUT var1 INT, OUT var2 INT)
+            BEGIN
+                DECLARE i, k INT DEFAULT 1;
+                ... что-то делаем с переменной i
+                BEGIN 
+                    DECLARE i INT DEFAULT 0; -- верхняя переменная i экранируется этим описанием
+                    ... оперируем i уже этого уровня
+                    ... оперируем верхней k
+                END ;
+            END //
+
+    -- Вызов:
+        CALL my_proc(); -- вызов процедуры
+        SELECT my_func(); -- вызов функции и вывод значения (её результата работы)
+
+    -- Ветвление (внтури процедуры-функ)
+        IF (условие) THEN
+            ...ОПЕРАТОР ;
+        ELSEIF
+            ...ОПЕРАТОР ;
+        ELSE
+            ...ОПЕРАТОР ;
+        ENDIF ;
+
+        CASE var
+            WHEN 'значени_1' THEN оператор-1;
+            WHEN 'значени_2' THEN оператор-2;
+            ELSE оператор-x;
+        END CASE;
+
+    -- Циклы
+        > WHILE -- цикл по условию вначале
+            WHILE условие DO           -- условие: если истина, то продолжаем
+                ...операторы ;
+            END WHILE;
+
+        > REPEATE -- цикл с пост-условием выхода
+            REPEATE
+                ...оператор;
+            UNTIL условие-не-выхода    -- если истина, то прекращаем цикл
+            END REPEATE;
+
+        > LOOP -- цикл без условия выхода
+            cycle_lable: LOOP
+                ...оператор;
+                IF условие THEN 
+                    LEAVE cycle_lable; -- условие и команда выхода из бесконечного цикла
+                END IF;
+            END LOOP; 
+        > Досрочное завершение 
+            >> LEAVE метка -- досрочный выход из цикла по метке (метка обязательна)
+                while_lable: WHILE условие DO 
+                    ...операторы ;
+                    IF условие THEN 
+                        LEAVE while_lable -- выход из цикла с меткой "while_lable"
+                    END IF;
+                END WHILE while_lable; -- завершение описания цикла с меткой "while_lable"
+            >> ITERATE метка -- досрочный пропуск итерации цикла с меткой 
+
+    -- Обработка ошибок 
+        > описание обработки ошибки может появлятся только в начале функций или процедур
+            CREATE PROCEDURE insert_to_catalog (IN id INT, IN name VARCHAR(255))
+                BEGIN
+                    DECLARE CONTINUE HANDLER FOR SQLSTATE '23000' SET @error = "Ошибка и сообщение..." ;
+                    INSERT INTO catalogs VALUES(id, name); -- здесь произошла ошибка и наша переменная @error получила значение
+                    IF @error IS NOT NULL THEN
+                        SELECT @error; -- выводим сообщение об ошибке
+                    END IF;
+                END //
+        Прим.: при делении на ноль (0) ошибка не генерируется и возвращается NULL
+
+    -- Управление:
+        > CALL my_proc(); -- вызовов
+        > SHOW PROCEDURE STATUS LIKE 'my_%'; -- посмотреть список хранимых процедур
+          SHOW FUNCTION STATUS LIKE 'my_%'; -- посмотреть список хранимых функций
+        > DROP PROCEDURE IF EXISTS my_proc; -- удаление
+          DROP FUNCTION IF EXISTS my_func;
+        > DELIMITER // -- объявление разделителя "//" операторов в скрипте, 
+          отличного от используемо в процедуре
+            >> Варианты:
+                DELIMITER //
+                DELIMITER $$
+                DELIMITER ; -- default, возврат к разделителю команд по умолчанию
+            >> Внимание! 
+               Не путать разделитель "//" с ошибочным использованием обратного слеша "\\":
+                DELIMITER // -- правильно
+                DELIMITER \\ -- ОШИБКА!
+
+Курсоры 
+    -- Указатель на запись в таблице
+        > объявление курсора
+            DECLARE cursor_name CURSOR FOR и далее операция SELECT id, ...;
+        > объявление состояния "NOT FOUND" для следующей записи
+            DECLARE CONTINUE HANDLER FOR NOT FOUND SET is_end = 1;
+        > извлечение данных -- операция с курсором
+            FETCH cursor_name INTO id, ...; -- извлечение значений полей из текущей записи
+            >> при следующем обращении происходит перемещение к следующей записи
+            ...
+        > закрытие курсора
+            CLOSE cur_usr;
+            SET is_end = 0; -- а это на всякий случай сброс флага конца таблицы
+
+    -- Как пробежаться по таблице в цикле? 
+       Для этого нужно использовать курсор!
+        Пример:
+            DROP PROCEDURE IF EXISTS my_proc //
+            CREATE PROCEDURE my_proc ()
+            BEGIN
+                DECLARE id BIGINT default 0;
+                DECLARE name VARCHAR(255);
+                DECLARE is_end INT DEFAULT 0;
+                DECLARE cur_usr CURSOR FOR SELECT u.id FROM sample.users AS u order by u.id ; -- объявляем курсор
+                DECLARE CONTINUE HANDLER FOR NOT FOUND SET is_end = 1; -- объявляем обработчик конца ("NOT FOUND")
+                -- открываем курсор
+                OPEN cur_usr; 
+                -- сейчас обойдём всю таблицу
+                cycle : LOOP
+                    FETCH cur_usr INTO id;  -- читаем данные из первой записи (в начале) или перемещаем на следующую
+                    IF is_end = 1 THEN 
+                        LEAVE cycle;
+                    END IF;
+                    SELECT id;
+                END LOOP cycle;
+                -- закрываем курсор и обнуляем переменную выхода
+                CLOSE cur_usr;
+                SET is_end = 0;
+            END //
+
+            CALL my_proc (@my_y) //
+
+Триггеры
+    https://dev.mysql.com/doc/refman/8.0/en/create-trigger.html
+    -- процедура (хранимая в БД), привязанная к событию изменения данных в таблице (специальная процедура)
+    -- виды событиий, на кот. реагирует триггер:
+        > INSERT
+        > DELETE
+        > UPDATE 
+    -- реакция во времени: 
+        > BEFORE -- срабатывает до изменения
+        > AFTER  -- срабатывает после изменения данных таблицы
+    -- создание
+        CREATE TRIGGER AFTER INSERT ON users
+        FOR EACH ROW -- ??????????????
+        BEGIN
+            -- ...тело процедуры, со всеми операторами и конструкциями, специфичными для процедуры...
+            SELECT COUNT(*) INTO @total_row FROM users; -- кол. строк после INSERT
+        END // -- разделитель изменён (командой Delimiter //)
+    -- доступ к новым и старым данным:
+        OLD -- старые данные
+        NEW -- новые данные
+            Пример:
+                SET NEW.catalog_id = COALESCE(NEW.catalog_id, cat_id); 
+                >> если новое значение определено (не NULL), то используем его,
+                   а если его не существует (оно NULL), то используем наше cat_id
+    -- удаление 
+        DROP TRIGGER IF EXISTS tr_name;
+    -- список имеющихся в базе:
+        SHOW TRIGGERS;
+        SHOW TRIGGERS\G;
+
+    -- отмена операции
+        > сгенерировать ошибку оператором SIGNAL (или RESIGNAL ????????) переменная_описания_ошибки
+            >> номер ошибки 45000 -- необработанное пользовательское исключение
+            >> номер ошибки 22012 -- деление на ноль
+        Пример: ошибка деления на ноль
+            DECLARE division_by_zero CONDITION FOR SQLSTATE '22012';
+            DECLARE CONTINUE HANDLER for division_by_zero
+                RESIGNAL SET MESSAGE_TEXT = 'Деление на ноль / делитель не должен быть 0';
+            -- 
+            IF denominator = 0 THEN
+                SIGNAL division_by_zero;
+            END IF;
+
+       > SQLSTATE 45000 -- ошибка пользовательская, не перехватывается другими...
+
+Администрирование (09 занятие, методичка Администрирование)
+    -- Параметры запуска (my.cnf)
+
+    -- Пользователи, права пользователей
+        > создание нового и бесправного
+            CREATE USER new_user@%;  -- для доступа со всех хостов
+        > далее можно авторизоваться:
+            $ mysql -u new_user@localhost 
+            mysql> SELECT USER(); -- вывести текущего пользователя
+        > задание пароля IDENTIFIED...BY
+            CREATE USER new_user IDENTIFIED WITH 'sha256_password' BY 'pass';
+        > полномочия назначить GRANT
+            GRANT ALL ON *.* to 'new_user'@'%' IDENTIFIED WITH 'sha256_password' BY 'pass';
+            GRANT SELECT, INSERT, DELETE, UPDATE ON *.* TO new_user; -- перечислены виды операций
+            GRANT SELECT (id, name), UPDATE (name) ON shop.catalogs TO new_user ; -- разрешения с указанием таблиц и полей
+            GRANT GRANT OPTION ON *.* to new_user; -- полномочия на изменение полномочий (административные), всегда отдельный запрос
+        > отобрать REVOKE
+            REVOKE ALL ON *.* FROM 'new_user'@'%' ; -- отбираем все (ALL) права на всё (*.*)
+            GRANT USAGE, SELECT ON *.* TO new_user ; -- отобрать всё, кроме SELECT
+        > переименовать
+            RENAME USER usr1 TO usr2 ;
+        > удалить
+            DROP USER usr1 ;
+        > посмотреть полномочия:
+            SHOW GRANTS; -- внимание: "GRANTS", а не "GRANT"
+        > список пользователей:
+            SELECT Host, User FROM mysql.user ;
+        
+
+        > технические ограничения (по умолчанию отсутствуют):
+            GRANT ALL ON shop.* TO 'new_user'@'localhost' IDENTIFIED WITH 'sha256_password' BY 'pass'
+            WITH MAX_CONNECTION_PER_HOUR 10  -- не более 10 подключений в час
+                 MAX_QUERIES_PER_HOUR 1000   -- не более 1000 запросов,
+                 MAX_UPDATES_PER_HOUR 200    -- из которых только 200 могут быть обнолением (update)
+                 MAX_USER_CONNECTIONS 3 ;    -- количество одновременных запросов.
+            >> по умолчанию значения == 0, то есть без ограничений.
+        
+    -- Репликация
+        ????????????
+
+    -- Оптимизация (урок 11, видео )
+        ?????
 
 
-JSON
+
+
+* * *  С П Р А В О Ч Н И К  * * *
+JSON (формат доступа к даннм этого типа)
     -- См. так же описание типов (выше).
     CREATE TABLE distances (
         id SERIAL PRIMARY KEY,
@@ -1725,15 +2644,29 @@ JSON
         ->> -- доступ в поле к элементу коллекции
 
 Info
-    SELECT VERSION();  -- вывести версию сервера.
+    SELECT VERSION();  -- вывести версию SQL-сервера
+    SHOW TABLES FROM db_name; -- вывести список таблиц из БД "db_name"
+    SELECT mysql.User.User, mysql.User.Host,  FROM mysql.User;
+        -- вывести поля User и Host таблицы User из (FROM) базы данных "mysql" и её таблицы "User";
+        -- указаны полные, т. е. квалифицированные имена
+    SELECT User FROM mysql.User;
+        -- тоже, что и выше, но короче...
+    SELECT User, Host FROM mysql.User;
+        -- вывести поля User и Host из таблицы User базы mysql
     SHOW DATABASES; -- вывести базы данных на сервере.
     SHOW TABLES; -- вывести таблицы в текущей базе.
     SHOW WARNINGS; -- вывод последней ошибки
     SHOW VARIABLES LIKE 'port' -- порт из меременных
+    SHOW FULL PROCESSLIST; -- список сессий...
     STATUS -- статус (выбранная база, ...)
     DESCRIBE tablename; -- структура таблицы
 
 ?-?-? ОТКРЫТЫЕ ВОПРОСЫ ?-?-?#
+
+SELECT 0  AS SEQUENCE
+-- что такое "SEQUENCE"?
+    > dbeaver его знает
+-- CONNECT BY ???
 
 Источники
 https://dev.mysql.com/doc/refman/5.7/en/tutorial.html
@@ -1749,6 +2682,8 @@ https://dev.mysql.com/doc/refman/5.7/en/literals.html
 
 
 2022-05-14. Практическое занятие
+2022-06-11. Семинар.
+
 
 
 # END
