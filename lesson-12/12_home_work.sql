@@ -6,7 +6,8 @@
 -- А) выдача справок и документов
 -- Б) поддержание учётной записи пользователя
 
--- 1. DDL
+-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+-- 1. DDL 
 
 DROP DATABASE IF EXISTS gos;
 CREATE DATABASE IF NOT EXISTS gos;
@@ -74,24 +75,23 @@ CREATE TABLE service_type (
     CONSTRAINT fk_dir_id FOREIGN KEY (direct_id) REFERENCES direct(id)
 ) COMMENT='Услуги';
 
--- Заказанные услуги и выполненные услуги
+-- Заказанные услуги и состояние их выполнения
 -- связь: 1--M
 DROP TABLE IF EXISTS services;
-CREATE TABLE servises (
+CREATE TABLE services (
     id bigint UNSIGNED NOT NULL AUTO_INCREMENT,
-    user_id bigint UNSIGNED NOT NULL,                 -- гражданин
-    service_type_id bigint UNSIGNED NOT NULL,         -- вид услуги
-    service_status ENUM ('start', 'production', 'ready', 'complited'),
+    user_id bigint UNSIGNED,                 -- гражданин
+    service_type_id bigint UNSIGNED,         -- вид услуги
+    service_status ENUM ('start', 'production', 'ready', 'complited') DEFAULT 'start',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    product_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    complited_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_service_user_id FOREIGN KEY (user_id) REFERENCES users(id),
     CONSTRAINT fk_service_type_id FOREIGN KEY (service_type_id) REFERENCES service_type(id),  
     PRIMARY KEY (id)
 );
 
+-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 -- ЖУРНАЛИРОВАНИИЕ: отслеживание изменений данных пользователя
-
 -- Таблица для журналирования
 DROP TABLE IF EXISTS logs_users;
 CREATE TABLE IF NOT EXISTS logs_users (
@@ -181,3 +181,193 @@ END //
  
 DELIMITER ;
 
+
+-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+-- ПРЕДСТАВЛЕНИЯ
+-- Пользователи (Join-соединения)
+DROP VIEW IF EXISTS user_view ;
+CREATE OR REPLACE ALGORITHM=MERGE VIEW user_view AS
+    SELECT usr.id AS `N`, usr.firstname AS `Name`, pro.birth_day AS Birthday, cty.name AS `City`, 
+           (CASE usr.verification 
+                WHEN 1 then 'да'
+                WHEN 0 then '-'
+                ELSE '-'
+            END ) AS `Verify`
+      FROM users as usr
+      JOIN profile as pro ON usr.id = pro.user_id
+      JOIN city as cty ON pro.residence_city_id = cty.id 
+; -- user_view /END
+-- SELECT * FROM user_view ; -- WHERE n IN (5, 4, 7) ORDER BY field(n, 5, 4, 7) ;
+
+-- Услуги (вложенные запросы)
+DROP VIEW IF EXISTS srv_type_view ;
+CREATE OR REPLACE ALGORITHM=MERGE VIEW srv_type_view AS
+    SELECT id AS n, 
+          (SELECT name FROM direct WHERE id = st.direct_id) AS dir, 
+           name 
+      FROM service_type AS st
+; -- service_view /end;
+-- SELECT * FROM srv_type_view ; -- WHERE dir = 'Справки' ;
+
+-- Услуги: состояние принятых заданий от граждан
+DROP VIEW IF EXISTS srv_view ;
+CREATE OR REPLACE ALGORITHM=MERGE VIEW srv_view AS
+    SELECT srv.id AS n, 
+           usr.firstname AS Name, 
+           dir.name AS Direct, 
+           stp.name AS Document, 
+           service_status AS status, 
+           srv.updated_at AS updated 
+      FROM services AS srv
+      JOIN users AS usr ON srv.user_id = usr.id
+      JOIN service_type AS stp ON stp.id = srv.service_type_id
+      JOIN direct AS dir ON dir.id = stp.direct_id 
+; # srv_view/END
+-- SELECT * FROM srv_view ORDER BY updated ;
+
+
+-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+-- DML
+-- наполняем таблицы данными...
+
+USE gos;
+
+-- ПОЛЬЗОВАТЕЛИ, основное
+INSERT INTO users 
+    (id, firstname, fathername, lastname, email, phone)
+VALUES 
+    (1, 'Иван',     'Петрович',     'Мышкин',    'little@mouse.rr',      79260000001),
+    (2, 'Анна',     'Cергеевна',    'Лесникова', 'a.forest@mail.mm',     79000000002),
+    (3, 'Захар',    'Валентинович', 'Громов',    'lsdkfj@email.ff',      79030000003),
+    (4, 'Петр',     'Иванович',     'Кузькин',   'ku@mail.mm',           79000000004),
+    (5, 'Мария',    'Cергеевна',    'Лесникова', 'm.forest@mail.mm',     79000000005),
+    (6, 'Кузьма',   'Борисович',    'Телегин',   'telega@mail.mm',       79100000006),
+    (7, 'Светлана', 'Алексеевна',   'Телегина',  's.telega@mail.mm',     79100000007),
+    (8, 'Иван',     'Иваныч',       'Мышкин',    'i.little@mouse.rr',    79160000008)
+AS new_value
+    (id, firstname, fathername, lastname, email, phone)
+ON DUPLICATE KEY UPDATE
+    id = new_value.id,
+    firstname = new_value.firstname, 
+    fathername = new_value.fathername,
+    lastname = new_value.lastname,
+    email = new_value.email,
+    phone = new_value.phone
+; #users/end
+
+-- Проверка работы тригеров для таблицы users
+-- так же на обновление и удаление (вставка выше)
+INSERT INTO users 
+    (id, verification)
+VALUES 
+    (1, 1), (5, 1) AS news(i, v)
+ON DUPLICATE KEY UPDATE 
+    id = news.i,
+    verification = news.v
+; #update-test/end
+
+UPDATE users SET verification = 1 WHERE id = 7;
+DELETE FROM users WHERE id = 8;
+
+-- ГОРОДА (справочник)
+INSERT INTO city (id, name)
+VALUES 
+    (1, 'Москва'),
+    (2, 'Санкт-Петербург'),
+    (3, 'Архангельск'),
+    (4, 'Кёнигсберг'),
+    (5, 'Владивосток')
+AS news(id, name)    
+ON duplicate KEY UPDATE 
+    id = news.id,
+    name = news.name
+; #city/end
+
+-- ПОЛЬЗОВАТЕЛИ, дополнительные данные
+INSERT INTO profile 
+    (user_id, birth_day, birth_city_id, residence_city_id)
+VALUES 
+    (1, date('2000-01-01'), 3, 1), 
+    (2, date('1975-01-01'), 3, 3),
+    (3, date('2005-01-01'), 5, 5),
+    (4, date('1995-02-27'), 3, 5),
+    (5, date('2008-12-30'), 1, 5),
+    (6, date('1987-06-21'), 1, 1),
+    (7, date('2000-06-21'), 1, 1)
+AS news(user_id, birth_day, birth_city_id, residence_city_id)
+ON DUPLICATE KEY UPDATE 
+    user_id = news.user_id, 
+    birth_day = news.birth_day,
+    birth_city_id = news.birth_city_id,
+    residence_city_id = news.residence_city_id
+; #profile/end
+
+-- УСЛУГИ
+-- Направления деятельности
+INSERT INTO direct (id, name)
+VALUES 
+    (1, 'Справки'),
+    (2, 'Документы, удостоверяющие личность')
+AS news(id, name)
+ON DUPLICATE KEY UPDATE 
+    id = news.id,
+    name = news.name 
+; #dir/end
+
+-- Список всех услуг по направлениям деятельности
+INSERT INTO service_type 
+    (id, direct_id, name)
+VALUES 
+    (1, 1, 'Справка по форме \"А-1\"'),
+    (2, 1, 'Справка по форме \"А-2\"'),
+    (3, 1, 'Справка по форме \"В-1\"'),
+    (4, 2, 'Паспорт гражданина РФ'),
+    (5, 2, 'Паспорт заграничный')
+AS new_value
+    (id, direct_id, name)
+ON DUPLICATE KEY UPDATE
+    id = new_value.id,
+    direct_id = new_value.direct_id,
+    name = new_value.name 
+; #service_type/end
+
+INSERT INTO services
+    (id, user_id, service_type_id, service_status, created_at, updated_at)
+VALUES
+    ( 1, 2, 4, 'complited',  '2020-03-26 12:12:00', '2020-05-01 12:12:00'),
+    ( 2, 3, 4, 'complited',  '2020-04-01 12:12:00', '2020-04-12 09:12:00'),
+    ( 3, 1, 1, 'production', '2021-03-26 12:12:00', '2021-05-11 11:45:00'),
+    ( 4, 2, 1, 'complited',  '2021-03-26 12:12:00', '2021-05-10 13:12:01'),
+    ( 5, 2, 2, 'complited',  '2021-04-03 12:12:00', '2021-05-14 17:31:00'),
+    ( 6, 2, 3, 'complited',  '2021-04-03 12:12:00', '2020-03-27 12:59:00'),
+    ( 7, 5, 4, 'production', '2021-11-10 12:12:00', '2021-12-15 12:12:00'),
+    ( 8, 6, 4, 'ready', '2022-03-11 12:12:00', '2022-04-01 11:30:00'),
+    ( 9, 7, 4, 'production', '2022-04-03 12:12:00', '2022-04-27 10:12:00'),
+    (10, 7, 5, 'complited',  '2022-05-03 12:12:00', '2022-05-24 09:30:00'),
+    (11, 5, 1, 'start',       now(), now() ),
+    (12, 5, 2, 'start',       now(), now() )
+AS new_value
+    (id, user_id, service_type_id, service_status, created_at, updated_at)
+ON DUPLICATE KEY UPDATE
+    id = new_value.id, 
+    user_id = new_value.user_id, 
+    service_type_id = new_value.service_type_id, 
+    service_status = new_value.service_status, 
+    created_at = new_value.created_at, 
+    updated_at = new_value.updated_at
+; #services/END
+
+
+-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+-- ПРОВЕРКИ
+
+-- SELECT * FROM srv_type_view ; -- WHERE dir = 'Справки' ;
+-- SELECT * FROM user_view ; -- WHERE n IN (5, 4, 7) ORDER BY field(n, 5, 4, 7) ;
+
+-- Услуги в работе
+-- находящиеся в работе задания или выполненные, но не сданные:
+
+SELECT * FROM srv_view WHERE status != 'complited' ORDER BY updated DESC, n DESC;
+
+
+# End of project "GOS"
