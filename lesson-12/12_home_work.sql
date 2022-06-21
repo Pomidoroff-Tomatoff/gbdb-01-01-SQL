@@ -42,8 +42,8 @@ CREATE TABLE city (
 
 -- Пользователь: дополнительные данные
 -- связь: 1--1
-DROP TABLE IF EXISTS profile;
-CREATE TABLE profile (
+DROP TABLE IF EXISTS profiles;
+CREATE TABLE profiles (
     user_id BIGINT UNSIGNED NOT NULL,
     birth_day DATE NOT NULL,
     birth_city_id BIGINT UNSIGNED NOT NULL,       -- город рождения     
@@ -79,9 +79,9 @@ CREATE TABLE service_type (
 -- связь: 1--M
 DROP TABLE IF EXISTS services;
 CREATE TABLE services (
-    id bigint UNSIGNED NOT NULL AUTO_INCREMENT,
-    user_id bigint UNSIGNED,                 -- гражданин
-    service_type_id bigint UNSIGNED,         -- вид услуги
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id BIGINT UNSIGNED,  -- NOT NULL,             -- гражданин
+    service_type_id BIGINT UNSIGNED, -- NOT NULL,      -- вид услуги
     service_status ENUM ('start', 'production', 'ready', 'complited') DEFAULT 'start',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS logs_users (
     log_email varchar(127) DEFAULT NULL,
     log_phone BIGINT DEFAULT NULL,
     log_verification BIT DEFAULT NULL
-) comment = 'Журнал регистрации создания записей' ENGINE = Archive;
+) comment = 'Журнал регистрации изменений таблицы users' ENGINE = Archive;
 
 -- Процедура (общая) записи строки в журнал (logs)
 
@@ -194,9 +194,9 @@ CREATE OR REPLACE ALGORITHM=MERGE VIEW user_view AS
                 ELSE '-'
             END ) AS `Verify`
       FROM users as usr
-      JOIN profile as pro ON usr.id = pro.user_id
-      JOIN city as cty ON pro.residence_city_id = cty.id 
-; -- user_view /END
+      LEFT JOIN profiles as pro ON usr.id = pro.user_id        -- если в профиле записи нет, 
+      LEFT JOIN city as cty ON pro.residence_city_id = cty.id -- то строку с пользователем не теряем!  
+; #user_view/end
 -- SELECT * FROM user_view ; -- WHERE n IN (5, 4, 7) ORDER BY field(n, 5, 4, 7) ;
 
 -- Услуги (вложенные запросы)
@@ -206,7 +206,7 @@ CREATE OR REPLACE ALGORITHM=MERGE VIEW srv_type_view AS
           (SELECT name FROM direct WHERE id = st.direct_id) AS dir, 
            name 
       FROM service_type AS st
-; -- service_view /end;
+; #service_view/end;
 -- SELECT * FROM srv_type_view ; -- WHERE dir = 'Справки' ;
 
 -- Услуги: состояние принятых заданий от граждан
@@ -219,10 +219,10 @@ CREATE OR REPLACE ALGORITHM=MERGE VIEW srv_view AS
            service_status AS status, 
            srv.updated_at AS updated 
       FROM services AS srv
-      JOIN users AS usr ON srv.user_id = usr.id
-      JOIN service_type AS stp ON stp.id = srv.service_type_id
-      JOIN direct AS dir ON dir.id = stp.direct_id 
-; # srv_view/END
+      LEFT JOIN users AS usr ON srv.user_id = usr.id
+      LEFT JOIN service_type AS stp ON stp.id = srv.service_type_id
+      LEFT JOIN direct AS dir ON dir.id = stp.direct_id 
+; # srv_view/end
 -- SELECT * FROM srv_view ORDER BY updated ;
 
 
@@ -232,18 +232,19 @@ CREATE OR REPLACE ALGORITHM=MERGE VIEW srv_view AS
 
 USE gos;
 
--- ПОЛЬЗОВАТЕЛИ, основное
+-- ПОЛЬЗОВАТЕЛИ-1, основное
+-- все пользователи не подтверждены (поле verification в нуле)
 INSERT INTO users 
     (id, firstname, fathername, lastname, email, phone)
 VALUES 
-    (1, 'Иван',     'Петрович',     'Мышкин',    'little@mouse.rr',      79260000001),
-    (2, 'Анна',     'Cергеевна',    'Лесникова', 'a.forest@mail.mm',     79000000002),
-    (3, 'Захар',    'Валентинович', 'Громов',    'lsdkfj@email.ff',      79030000003),
-    (4, 'Петр',     'Иванович',     'Кузькин',   'ku@mail.mm',           79000000004),
-    (5, 'Мария',    'Cергеевна',    'Лесникова', 'm.forest@mail.mm',     79000000005),
-    (6, 'Кузьма',   'Борисович',    'Телегин',   'telega@mail.mm',       79100000006),
-    (7, 'Светлана', 'Алексеевна',   'Телегина',  's.telega@mail.mm',     79100000007),
-    (8, 'Иван',     'Иваныч',       'Мышкин',    'i.little@mouse.rr',    79160000008)
+    (1, 'Иван',     'Петрович',     'Мышкин',    'little@mouse.rr',   79260000001),
+    (2, 'Анна',     'Cергеевна',    'Лесникова', 'a.forest@mail.mm',  79000000002),
+    (3, 'Захар',    'Валентинович', 'Громов',    'lsdkfj@email.ff',   79030000003),
+    (4, 'Петр',     'Иванович',     'Кузькин',   'ku@mail.mm',        79000000004),
+    (5, 'Мария',    'Cергеевна',    'Лесникова', 'm.forest@mail.mm',  79000000005),
+    (6, 'Кузьма',   'Борисович',    'Телегин',   'telega@mail.mm',    79100000006),
+    (7, 'Светлана', 'Алексеевна',   'Телегина',  's.telega@mail.mm',  79100000007),
+    (8, 'Иван',     'Иваныч',       'Мышкин',    'i.little@mouse.rr', 79160000008)
 AS new_values
     (id, firstname, fathername, lastname, email, phone)
 ON DUPLICATE KEY UPDATE
@@ -255,19 +256,20 @@ ON DUPLICATE KEY UPDATE
     phone = new_values.phone
 ; #users/end
 
--- Проверка работы тригеров для таблицы users
--- так же на обновление и удаление (вставка выше)
+-- ПОЛЬЗОВАТЕЛИ-2а: подтверждение пользователя в офисе
+-- Проверка работы тригеров на обновление (конструкция INSERT--ON-UPDATE)
 INSERT INTO users 
     (id, verification)
 VALUES 
-    (1, 1), (5, 1) AS new_values(i, v)
+    (1, 1), (4, 1) AS new_values(i, v)
 ON DUPLICATE KEY UPDATE 
     id = new_values.i,
     verification = new_values.v
 ; #update-test/end
 
+-- ПОЛЬЗОВАТЕЛИ-2б: подтверждение пользователя в офисе 
+-- проверка работы тригеров на обновление (UPDATE)
 UPDATE users SET verification = 1 WHERE id = 7;
-DELETE FROM users WHERE id = 8;
 
 -- ГОРОДА (справочник)
 INSERT INTO city (id, name)
@@ -284,23 +286,40 @@ ON duplicate KEY UPDATE
 ; #city/end
 
 -- ПОЛЬЗОВАТЕЛИ, дополнительные данные
-INSERT INTO profile 
+INSERT INTO profiles 
     (user_id, birth_day, birth_city_id, residence_city_id)
 VALUES 
     (1, date('2000-01-01'), 3, 1), 
     (2, date('1975-01-01'), 3, 3),
     (3, date('2005-01-01'), 5, 5),
     (4, date('1995-02-27'), 3, 5),
-    (5, date('2008-12-30'), 1, 5),
+--  (5, date('2008-12-30'), 1, 5), -- "теряем" эту доп. информацию, но не должны потерять всего пользователя в представлениях...
     (6, date('1987-06-21'), 1, 1),
-    (7, date('2000-06-21'), 1, 1)
+    (7, date('2000-06-21'), 1, 1),
+    (8, date('2003-08-16'), 1, 1)   -- эта запись должна быть удалена каскадом, правильно?
 AS new_values(user_id, birth_day, birth_city_id, residence_city_id)
 ON DUPLICATE KEY UPDATE 
     user_id = new_values.user_id, 
     birth_day = new_values.birth_day,
     birth_city_id = new_values.birth_city_id,
     residence_city_id = new_values.residence_city_id
-; #profile/end
+; #profiles/END
+
+-- ПОЛЬЗОВАТЕЛИ: удаление 
+-- проверка работы тригера на удаление (DELETE) записи 
+-- и целостности базы для таблицы profiles: каскадом в ней должна быть удалена запись с id=8
+SELECT * FROM profiles; 
+DELETE FROM users WHERE id = 8;
+/* ЦЕЛОСТНОСТЬ БД: проверка на дочерней таблице profiles
+ * -- а теперь попробуем вставить "нелегально" запись с id=8, 
+ * -- только-что удалённую в родительской таблице users 
+ * -- причём без соответствующего «ответа» в главной таблице users.
+INSERT INTO profiles 
+    (user_id, birth_day, birth_city_id, residence_city_id)
+VALUES 
+    (NULL, date('2003-08-16'), 1, 1),   -- нелегальная запись, правильно?
+    (   8, date('2003-08-16'), 1, 1)
+; -- Ура! Контроль целостности БД сработал -- не получилось вставить ошибку!!!  */
 
 -- УСЛУГИ
 -- Направления деятельности
@@ -338,10 +357,10 @@ VALUES
     ( 2, 3, 4, 'complited',  '2020-04-01 12:12:00', '2020-04-12 09:12:00'),
     ( 3, 1, 1, 'production', '2021-03-26 12:12:00', '2021-05-11 11:45:00'),
     ( 4, 2, 1, 'complited',  '2021-03-26 12:12:00', '2021-05-10 13:12:01'),
-    ( 5, 2, 2, 'complited',  '2021-04-03 12:12:00', '2021-05-14 17:31:00'),
+    ( 5, 2, 2, 'start',      '2021-04-03 12:12:00', '2021-05-14 17:31:00'),
     ( 6, 2, 3, 'complited',  '2021-04-03 12:12:00', '2020-03-27 12:59:00'),
     ( 7, 5, 4, 'production', '2021-11-10 12:12:00', '2021-12-15 12:12:00'),
-    ( 8, 6, 4, 'ready', '2022-03-11 12:12:00', '2022-04-01 11:30:00'),
+    ( 8, 6, 4, 'ready',      '2022-03-11 12:12:00', '2022-04-01 11:30:00'),
     ( 9, 7, 4, 'production', '2022-04-03 12:12:00', '2022-04-27 10:12:00'),
     (10, 7, 5, 'complited',  '2022-05-03 12:12:00', '2022-05-24 09:30:00'),
     (11, 5, 1, 'start',       now(), now() ),
@@ -357,21 +376,51 @@ ON DUPLICATE KEY UPDATE
     updated_at = new_values.updated_at
 ; #services/END
 
+-- ВНИМАНИЕ! 
+-- УСЛУГИ: НЕЛЕГАЛЬНАЯ запись!
+-- Целостность ключа не проверяется на значение NULL, попробуем его вставить!
+INSERT INTO services
+    (id, user_id, service_type_id, service_status, created_at, updated_at)
+VALUES
+    (13, NULL, NULL, 'start',       '2022-05-03 12:12:00', '2022-05-24 09:30:00') -- попытка вставить нелегальную запись!
+AS new_values
+    (id, user_id, service_type_id, service_status, created_at, updated_at)
+ON DUPLICATE KEY UPDATE
+    id = new_values.id, 
+    user_id = new_values.user_id, 
+    service_type_id = new_values.service_type_id, 
+    service_status = new_values.service_status, 
+    created_at = new_values.created_at, 
+    updated_at = new_values.updated_at
+; #services/END
 
 -- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 -- ПРОВЕРКИ
 
--- SELECT * FROM srv_type_view ; -- WHERE dir = 'Справки' ;
--- SELECT * FROM user_view ; -- WHERE n IN (5, 4, 7) ORDER BY field(n, 5, 4, 7) ;
+-- Пользователи
+SELECT * FROM profiles;
+SELECT * FROM user_view;
+-- SELECT * FROM user_view WHERE n IN (5, 4, 7) ORDER BY field(n, 5, 4, 7) ;
+
+-- Виды услуг
+SELECT * FROM srv_type_view ;
+-- SELECT * FROM srv_type_view WHERE dir = 'Справки' ;
 
 -- Услуги в работе
 -- находящиеся в работе задания или выполненные, но не сданные:
 
-SELECT * FROM srv_view WHERE status != 'complited' ORDER BY updated DESC, n DESC;
+SELECT * FROM srv_view ORDER BY n;
+-- SELECT * FROM srv_view WHERE status != 'complited' ORDER BY updated DESC, n DESC;
+-- SELECT * FROM services;
+
+-- Журнал изменений основных данных пользователя
+SELECT * FROM logs_users ;
 
 
 # End of project "GOS"
 
+
+-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 /* ОЦЕНКА ПРЕПОДАВАТЕЛЯ: ОТЛИЧНО (Сдано 2022-06-21; 03:43 MSK. Проверено: 09:32 MSK)
  * Кирилл Иванов, преподаватель
  
@@ -382,14 +431,20 @@ SELECT * FROM srv_view WHERE status != 'complited' ORDER BY updated DESC, n DESC
    Успехов в дальнейшем обучении!
 **/
 
+
 /* Мои замечания (2022-06-21; 11:23):
  * -- Не хватает запроса с рядом расположенными офисами Госуслуг
  *    тогда нужна таблица офисов... Можно добавить и представление
+ * 
  * -- Не хватает таблицы с чатом между специалистами Госуслуг и пользователем,
  *    так как где-то здесь может появитья таблица многие-ко-многим.
  * 
- * -- Полномочия: Не понятно, как пользователь поучает доступ к представлению, 
+ * -- Полномочия: Не понятно, как пользователь получает доступ к представлению, 
  *    но не получает доступ к таблице... не продумано мной.
  * 
- */
- 
+ * -- Полномочия: Если у пользователя есть доступ и полномочия и вообще он зарегестрированный и всё хорошо,
+ * -- то для каждого пользователя таблицы users нужно заводить нового пользователя MySQL?
+ * 
+ * -- Функции: что-то у меня не получилось... 
+**/
+
