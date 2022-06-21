@@ -244,15 +244,15 @@ VALUES
     (6, 'Кузьма',   'Борисович',    'Телегин',   'telega@mail.mm',       79100000006),
     (7, 'Светлана', 'Алексеевна',   'Телегина',  's.telega@mail.mm',     79100000007),
     (8, 'Иван',     'Иваныч',       'Мышкин',    'i.little@mouse.rr',    79160000008)
-AS new_value
+AS new_values
     (id, firstname, fathername, lastname, email, phone)
 ON DUPLICATE KEY UPDATE
-    id = new_value.id,
-    firstname = new_value.firstname, 
-    fathername = new_value.fathername,
-    lastname = new_value.lastname,
-    email = new_value.email,
-    phone = new_value.phone
+    id = new_values.id,
+    firstname = new_values.firstname, 
+    fathername = new_values.fathername,
+    lastname = new_values.lastname,
+    email = new_values.email,
+    phone = new_values.phone
 ; #users/end
 
 -- Проверка работы тригеров для таблицы users
@@ -260,10 +260,10 @@ ON DUPLICATE KEY UPDATE
 INSERT INTO users 
     (id, verification)
 VALUES 
-    (1, 1), (5, 1) AS news(i, v)
+    (1, 1), (5, 1) AS new_values(i, v)
 ON DUPLICATE KEY UPDATE 
-    id = news.i,
-    verification = news.v
+    id = new_values.i,
+    verification = new_values.v
 ; #update-test/end
 
 UPDATE users SET verification = 1 WHERE id = 7;
@@ -277,10 +277,10 @@ VALUES
     (3, 'Архангельск'),
     (4, 'Кёнигсберг'),
     (5, 'Владивосток')
-AS news(id, name)    
+AS new_values(id, name)    
 ON duplicate KEY UPDATE 
-    id = news.id,
-    name = news.name
+    id = new_values.id,
+    name = new_values.name
 ; #city/end
 
 -- ПОЛЬЗОВАТЕЛИ, дополнительные данные
@@ -294,12 +294,12 @@ VALUES
     (5, date('2008-12-30'), 1, 5),
     (6, date('1987-06-21'), 1, 1),
     (7, date('2000-06-21'), 1, 1)
-AS news(user_id, birth_day, birth_city_id, residence_city_id)
+AS new_values(user_id, birth_day, birth_city_id, residence_city_id)
 ON DUPLICATE KEY UPDATE 
-    user_id = news.user_id, 
-    birth_day = news.birth_day,
-    birth_city_id = news.birth_city_id,
-    residence_city_id = news.residence_city_id
+    user_id = new_values.user_id, 
+    birth_day = new_values.birth_day,
+    birth_city_id = new_values.birth_city_id,
+    residence_city_id = new_values.residence_city_id
 ; #profile/end
 
 -- УСЛУГИ
@@ -308,10 +308,10 @@ INSERT INTO direct (id, name)
 VALUES 
     (1, 'Справки'),
     (2, 'Документы, удостоверяющие личность')
-AS news(id, name)
+AS new_values(id, name)
 ON DUPLICATE KEY UPDATE 
-    id = news.id,
-    name = news.name 
+    id = new_values.id,
+    name = new_values.name 
 ; #dir/end
 
 -- Список всех услуг по направлениям деятельности
@@ -323,12 +323,12 @@ VALUES
     (3, 1, 'Справка по форме \"В-1\"'),
     (4, 2, 'Паспорт гражданина РФ'),
     (5, 2, 'Паспорт заграничный')
-AS new_value
+AS new_values
     (id, direct_id, name)
 ON DUPLICATE KEY UPDATE
-    id = new_value.id,
-    direct_id = new_value.direct_id,
-    name = new_value.name 
+    id = new_values.id,
+    direct_id = new_values.direct_id,
+    name = new_values.name 
 ; #service_type/end
 
 INSERT INTO services
@@ -346,15 +346,15 @@ VALUES
     (10, 7, 5, 'complited',  '2022-05-03 12:12:00', '2022-05-24 09:30:00'),
     (11, 5, 1, 'start',       now(), now() ),
     (12, 5, 2, 'start',       now(), now() )
-AS new_value
+AS new_values
     (id, user_id, service_type_id, service_status, created_at, updated_at)
 ON DUPLICATE KEY UPDATE
-    id = new_value.id, 
-    user_id = new_value.user_id, 
-    service_type_id = new_value.service_type_id, 
-    service_status = new_value.service_status, 
-    created_at = new_value.created_at, 
-    updated_at = new_value.updated_at
+    id = new_values.id, 
+    user_id = new_values.user_id, 
+    service_type_id = new_values.service_type_id, 
+    service_status = new_values.service_status, 
+    created_at = new_values.created_at, 
+    updated_at = new_values.updated_at
 ; #services/END
 
 
@@ -371,3 +371,25 @@ SELECT * FROM srv_view WHERE status != 'complited' ORDER BY updated DESC, n DESC
 
 
 # End of project "GOS"
+
+/* ОЦЕНКА ПРЕПОДАВАТЕЛЯ: ОТЛИЧНО (Сдано 2022-06-21; 03:43 MSK. Проверено: 09:32 MSK)
+ * Кирилл Иванов, преподаватель
+ 
+   Хорошо, что позаботились об индексах.
+   В SQL в общем случае принято именовать поля таблиц в единственном числе, а таблицы можно называть во множественном числе. важно придерживаться выбранного стиля (все в ед.ч. либо все в мн.ч.).
+   Наиболее популярные запросы (часто исполняемые) есть смысл сохранить в виде представлений.
+   Хорошо, что реализовали представления, хранимые процедуры, триггеры, не все до этого доходят.
+   Успехов в дальнейшем обучении!
+**/
+
+/* Мои замечания (2022-06-21; 11:23):
+ * -- Не хватает запроса с рядом расположенными офисами Госуслуг
+ *    тогда нужна таблица офисов... Можно добавить и представление
+ * -- Не хватает таблицы с чатом между специалистами Госуслуг и пользователем,
+ *    так как где-то здесь может появитья таблица многие-ко-многим.
+ * 
+ * -- Полномочия: Не понятно, как пользователь поучает доступ к представлению, 
+ *    но не получает доступ к таблице... не продумано мной.
+ * 
+ */
+ 
