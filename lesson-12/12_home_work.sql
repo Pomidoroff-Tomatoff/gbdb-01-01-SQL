@@ -80,8 +80,8 @@ CREATE TABLE service_type (
 DROP TABLE IF EXISTS services;
 CREATE TABLE services (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    user_id BIGINT UNSIGNED,  -- NOT NULL,             -- гражданин
-    service_type_id BIGINT UNSIGNED, -- NOT NULL,      -- вид услуги
+    user_id BIGINT UNSIGNED NOT NULL,             -- гражданин
+    service_type_id BIGINT UNSIGNED NOT NULL,     -- вид услуги
     service_status ENUM ('start', 'production', 'ready', 'complited') DEFAULT 'start',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -308,7 +308,7 @@ ON DUPLICATE KEY UPDATE
 -- ПОЛЬЗОВАТЕЛИ: удаление 
 -- проверка работы тригера на удаление (DELETE) записи 
 -- и целостности базы для таблицы profiles: каскадом в ней должна быть удалена запись с id=8
-SELECT * FROM profiles; 
+-- SELECT * FROM profiles; 
 DELETE FROM users WHERE id = 8;
 /* ЦЕЛОСТНОСТЬ БД: проверка на дочерней таблице profiles
  * -- а теперь попробуем вставить "нелегально" запись с id=8, 
@@ -379,6 +379,7 @@ ON DUPLICATE KEY UPDATE
 -- ВНИМАНИЕ! 
 -- УСЛУГИ: НЕЛЕГАЛЬНАЯ запись!
 -- Целостность ключа не проверяется на значение NULL, попробуем его вставить!
+/*
 INSERT INTO services
     (id, user_id, service_type_id, service_status, created_at, updated_at)
 VALUES
@@ -393,6 +394,7 @@ ON DUPLICATE KEY UPDATE
     created_at = new_values.created_at, 
     updated_at = new_values.updated_at
 ; #services/END
+*/
 
 -- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 -- ПРОВЕРКИ
