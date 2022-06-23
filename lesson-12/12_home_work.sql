@@ -400,16 +400,16 @@ ON DUPLICATE KEY UPDATE
 -- ПРОВЕРКИ
 
 -- Пользователи
-SELECT * FROM profiles;
-SELECT * FROM user_view;
+-- SELECT * FROM profiles;
+-- SELECT * FROM user_view;
 -- SELECT * FROM user_view WHERE n IN (5, 4, 7) ORDER BY field(n, 5, 4, 7) ;
 
 -- Виды услуг
-SELECT * FROM srv_type_view ;
+-- SELECT * FROM srv_type_view ;
 -- SELECT * FROM srv_type_view WHERE dir = 'Справки' ;
 
--- Услуги в работе
--- находящиеся в работе задания или выполненные, но не сданные:
+-- Услуги
+-- завершённые, находящиеся в работе, выполненные и ещё не сданные:
 
 SELECT * FROM srv_view ORDER BY n;
 -- SELECT * FROM srv_view WHERE status != 'complited' ORDER BY updated DESC, n DESC;
